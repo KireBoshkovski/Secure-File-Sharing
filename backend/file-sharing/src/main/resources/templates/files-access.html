@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Accessible Files</title>
+</head>
+<body>
+    <h2>Files You Have Access To</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Owner</th>
+                <th>Download</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="file : ${files}">
+                <td th:text="${file.fileName}"></td>
+                <td th:text="${file.owner.username}"></td>
+                <td><a th:href="@{'/api/files/download/' + ${file.id}}">Download</a></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
