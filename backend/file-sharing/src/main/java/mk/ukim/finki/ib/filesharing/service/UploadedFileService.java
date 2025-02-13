@@ -1,6 +1,7 @@
 package mk.ukim.finki.ib.filesharing.service;
 
 import mk.ukim.finki.ib.filesharing.model.UploadedFile;
+import mk.ukim.finki.ib.filesharing.model.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,4 +18,6 @@ public interface UploadedFileService {
     List<UploadedFile> findByOwner(String username);
 
     List<UploadedFile> findByAccess(String username);
+
+    void shareFile(Long fileId, String shareWith, User owner);
 }

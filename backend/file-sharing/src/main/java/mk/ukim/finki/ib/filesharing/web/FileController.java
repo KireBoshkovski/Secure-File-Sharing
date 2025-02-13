@@ -65,4 +65,12 @@ public class FileController {
     public ResponseEntity<List<UploadedFile>> showCreatedByUser(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(this.fileService.findByOwner(user.getUsername()));
     }
+
+    @PostMapping("/share/{id}")
+    public ResponseEntity<String> shareFile(@PathVariable Long id,
+                                            @RequestParam String username,
+                                            @AuthenticationPrincipal User user) {
+        this.fileService.shareFile(id, username, user);
+        return ResponseEntity.ok().build();
+    }
 }

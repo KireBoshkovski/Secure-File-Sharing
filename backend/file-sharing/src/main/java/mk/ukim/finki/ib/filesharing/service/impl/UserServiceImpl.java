@@ -31,13 +31,17 @@ public class UserServiceImpl implements UserService {
         }
 
         String hashedPassword = passwordEncoder.encode(password);
-
-        userRepository.save(new User(username, email, hashedPassword, new ArrayList<>(), true));
+        this.save(new User(username, email, hashedPassword, new ArrayList<>(), true));
     }
 
     @Override
     public User findByUsername(String username) {
         return this.userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("username: " + username));
+    }
+
+    @Override
+    public void save(User user) {
+        this.userRepository.save(user);
     }
 
     @Override
