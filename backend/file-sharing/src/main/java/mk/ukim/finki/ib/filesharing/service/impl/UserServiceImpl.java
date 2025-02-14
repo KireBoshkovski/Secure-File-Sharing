@@ -1,6 +1,5 @@
 package mk.ukim.finki.ib.filesharing.service.impl;
 
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import mk.ukim.finki.ib.filesharing.model.User;
 import mk.ukim.finki.ib.filesharing.model.exceptions.UserNotFoundException;

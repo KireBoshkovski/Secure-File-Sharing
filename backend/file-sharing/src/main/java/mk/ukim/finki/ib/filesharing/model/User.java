@@ -24,7 +24,7 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
     private String password; // hashed
-    @ManyToMany
+    @ManyToMany(mappedBy = "users")
     private List<UploadedFile> hasAccess;
     private boolean verified;
     public User(String username, String email, String password) {

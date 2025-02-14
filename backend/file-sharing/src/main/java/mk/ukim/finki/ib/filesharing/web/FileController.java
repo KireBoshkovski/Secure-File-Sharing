@@ -3,7 +3,7 @@ package mk.ukim.finki.ib.filesharing.web;
 import lombok.AllArgsConstructor;
 import mk.ukim.finki.ib.filesharing.model.UploadedFile;
 import mk.ukim.finki.ib.filesharing.model.User;
-import mk.ukim.finki.ib.filesharing.service.UploadedFileService;
+import mk.ukim.finki.ib.filesharing.service.FileService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -12,21 +12,19 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/files")
 @AllArgsConstructor
 public class FileController {
-    private final UploadedFileService fileService;
+    private final FileService fileService;
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file,
                                              @AuthenticationPrincipal User user) {
         try {
-            System.out.println("FILE CONTENT: " + Arrays.toString(file.getBytes()));
-            this.fileService.save(file.getOriginalFilename(), file.getContentType(), file.getBytes(), user.getUsername());
+            this.fileService.save(file.getOriginalFilename(), file.getContentType(), file.getBytes(), user);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -47,10 +45,10 @@ public class FileController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     public ResponseEntity<String> deleteById(@PathVariable Long id) {
         if (this.fileService.existsById(id)) {
-            this.fileService.deleteById(id);
+            this.fileService.removeFile(id);
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.badRequest().build();
@@ -58,12 +56,12 @@ public class FileController {
 
     @GetMapping("/access")
     public ResponseEntity<List<UploadedFile>> showAllAccessibleFilesByUsername(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(this.fileService.findByAccess(user.getUsername()));
+        return ResponseEntity.ok(this.fileService.findByAccess(user));
     }
 
     @GetMapping("/created")
     public ResponseEntity<List<UploadedFile>> showCreatedByUser(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(this.fileService.findByOwner(user.getUsername()));
+        return ResponseEntity.ok(this.fileService.findByOwner(user));
     }
 
     @PostMapping("/share/{id}")

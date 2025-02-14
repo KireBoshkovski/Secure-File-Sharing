@@ -12,6 +12,7 @@
         <!--                <th>Uploaded On</th>-->
         <th>Download</th>
         <th>Share</th>
+        <th>Delete</th>
     </tr>
     </thead>
     <tbody>
@@ -23,6 +24,11 @@
             <form th:action="@{'/api/files/share/' + ${file.id}}" method="post">
                 <input type="text" name="username" placeholder="Enter friend's username" required/>
                 <button type="submit">Share</button>
+            </form>
+        </td>
+        <td>
+            <form th:action="@{'/api/files/delete/' +${file.id}}" method="post">
+                <button type="submit">Delete</button>
             </form>
         </td>
     </tr>

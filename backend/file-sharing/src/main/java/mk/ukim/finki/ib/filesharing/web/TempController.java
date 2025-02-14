@@ -3,7 +3,7 @@ package mk.ukim.finki.ib.filesharing.web;
 import lombok.AllArgsConstructor;
 import mk.ukim.finki.ib.filesharing.model.UploadedFile;
 import mk.ukim.finki.ib.filesharing.model.User;
-import mk.ukim.finki.ib.filesharing.service.UploadedFileService;
+import mk.ukim.finki.ib.filesharing.service.FileService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping({"", "/", "/home", "/files"})
 @AllArgsConstructor
 public class TempController {
-    private final UploadedFileService fileService;
+    private final FileService fileService;
 
     @GetMapping
     public String index() {
@@ -33,15 +33,14 @@ public class TempController {
 
     @GetMapping("/access")
     public String showAllAccessibleFilesByUsername(@AuthenticationPrincipal User user, Model model) {
-        List<UploadedFile> files = fileService.findByAccess(user.getUsername());
+        List<UploadedFile> files = fileService.findByAccess(user);
         model.addAttribute("files", files);
         return "files-access"; // This is the name of the Thymeleaf template for accessible files
     }
 
     @GetMapping("/created")
     public String showCreatedByUser(@AuthenticationPrincipal User user, Model model) {
-        List<UploadedFile> files = fileService.findByOwner(user.getUsername());
-        model.addAttribute("files", files);
+        model.addAttribute("files", fileService.findByOwner(user));
         return "files-created"; // This is the name of the Thymeleaf template for files created by the user
     }
 }
