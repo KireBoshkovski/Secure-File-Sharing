@@ -21,39 +21,39 @@ public class User implements UserDetails {
     @Id
     @Column(nullable = false, unique = true)
     private String username;
+
     @Column(nullable = false, unique = true)
     private String email;
-    private String password; // hashed
-    @ManyToMany(mappedBy = "users")
-    private List<UploadedFile> hasAccess;
+
+    private String password;
+
     private boolean verified;
+
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.hasAccess = new ArrayList<>();
         this.verified = true;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return Collections.singleton(new SimpleGrantedAuthority("USER"));
         return Collections.emptyList();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return true;
     }
 
     @Override
@@ -61,4 +61,3 @@ public class User implements UserDetails {
         return verified;
     }
 }
-

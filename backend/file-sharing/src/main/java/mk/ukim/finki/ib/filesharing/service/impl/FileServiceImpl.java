@@ -2,14 +2,18 @@ package mk.ukim.finki.ib.filesharing.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import mk.ukim.finki.ib.filesharing.model.FileAccess;
 import mk.ukim.finki.ib.filesharing.model.UploadedFile;
 import mk.ukim.finki.ib.filesharing.model.User;
 import mk.ukim.finki.ib.filesharing.model.exceptions.InvalidFileIdException;
+import mk.ukim.finki.ib.filesharing.model.exceptions.UnauthorizedAccessException;
+import mk.ukim.finki.ib.filesharing.model.exceptions.UserNotFoundException;
 import mk.ukim.finki.ib.filesharing.repository.FileRepository;
 import mk.ukim.finki.ib.filesharing.service.FileService;
 import mk.ukim.finki.ib.filesharing.service.UserService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,15 +22,20 @@ import java.util.Optional;
 public class FileServiceImpl implements FileService {
     private final FileRepository fileRepository;
     private final UserService userService;
+
     @Override
     @Transactional
-    public void save(String fileName, String fileType, byte[] data, User user) {
-        UploadedFile file = new UploadedFile(fileName, fileType, data, user);
+    public void save(UploadedFile uploadedFile) {
+        FileAccess access = new FileAccess();
+        access.setUploadedFile(uploadedFile);
+        access.setUser(uploadedFile.getOwner());
+        access.setAccessType(FileAccess.AccessType.BOTH);
+        access.setLastAccessed(LocalDateTime.now());
 
-        file.getUsers().add(user);
-
-        this.fileRepository.save(file);
+        uploadedFile.getAccessList().add(access);
+        fileRepository.save(uploadedFile);
     }
+
 
     @Override
     public Optional<UploadedFile> findById(Long id) {
@@ -52,16 +61,41 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional
     public List<UploadedFile> findByAccess(User user) {
-        return this.fileRepository.findAllByUsersContaining(user);
+        return this.fileRepository.findAllByAccessList_User(user);
     }
 
     @Override
-    public void shareFile(Long id, String username, User user) {
-        UploadedFile f = this.fileRepository.findById(id).orElseThrow(() -> new InvalidFileIdException(id));
-        if (!user.getUsername().equals(f.getOwner().getUsername())) {
-            System.err.println("You don't own this file [head scratch]");
+    @Transactional
+    public void shareFile(Long id, String username, User user, FileAccess.AccessType accessType) throws UnauthorizedAccessException {
+        UploadedFile file = this.fileRepository.findById(id)
+                .orElseThrow(() -> new InvalidFileIdException(id));
+
+        if (!user.getUsername().equals(file.getOwner().getUsername())) {
+            throw new UnauthorizedAccessException();
         }
-        f.getUsers().add(this.userService.findByUsername(username));
-        this.fileRepository.save(f);
+
+        User targetUser = this.userService.findByUsername(username);
+        if (targetUser == null) {
+            throw new UserNotFoundException("User " + username + " not found.");
+        }
+
+        boolean hasAccess = file.getAccessList().stream()
+                .anyMatch(access -> access.getUser().getUsername().equals(username));
+
+        if (hasAccess) {
+            System.out.println("User " + username + " already has access to this file.");
+            return;
+        }
+
+        FileAccess fileAccess = new FileAccess();
+        fileAccess.setUploadedFile(file);
+        fileAccess.setUser(targetUser);
+        fileAccess.setAccessType(accessType);
+        fileAccess.setLastAccessed(LocalDateTime.now());
+
+        file.getAccessList().add(fileAccess);
+        this.fileRepository.save(file);
+
+        System.out.println("File shared with " + username + " with " + accessType + " access.");
     }
 }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,26 +18,33 @@ public class UploadedFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     @Column(nullable = false)
     private String fileName;
+
     @Column(nullable = false)
     private String fileType;
-    @Lob // Large object for storing binary data
+
+    @Lob
     private byte[] data;
+
+    @Lob
+    private byte[] iv;
+
     @ManyToOne
     private User owner;
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "file_user",
-            joinColumns = @JoinColumn(name = "file_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<User> users;
 
-    public UploadedFile(String fileName, String fileType, byte[] data, User owner) {
+    @OneToMany(mappedBy = "uploadedFile", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<FileAccess> accessList = new ArrayList<>();
+
+    private LocalDateTime lastModified;
+
+    public UploadedFile(String fileName, String fileType, byte[] data, User owner, byte[]iv) {
         this.fileName = fileName;
         this.fileType = fileType;
         this.data = data;
         this.owner = owner;
-        this.users = new ArrayList<>();
+        this.iv = iv;
+        this.lastModified = LocalDateTime.now();
     }
 }

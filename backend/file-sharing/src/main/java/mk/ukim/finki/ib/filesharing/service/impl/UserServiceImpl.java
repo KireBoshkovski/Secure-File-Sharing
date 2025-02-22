@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
         }
 
         String hashedPassword = passwordEncoder.encode(password);
-        this.save(new User(username, email, hashedPassword, new ArrayList<>(), true));
+        this.save(new User(username, email, hashedPassword));
     }
 
     @Override

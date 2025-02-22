@@ -19,7 +19,9 @@ public class TempController {
     private final FileService fileService;
 
     @GetMapping
-    public String index() {
+    public String index(@AuthenticationPrincipal User user, Model model) {
+        List<UploadedFile> files = fileService.findByAccess(user);
+        model.addAttribute("files", files);
         return "home";
     }
     @GetMapping("/register")
@@ -35,12 +37,12 @@ public class TempController {
     public String showAllAccessibleFilesByUsername(@AuthenticationPrincipal User user, Model model) {
         List<UploadedFile> files = fileService.findByAccess(user);
         model.addAttribute("files", files);
-        return "files-access"; // This is the name of the Thymeleaf template for accessible files
+        return "files-access";
     }
 
     @GetMapping("/created")
     public String showCreatedByUser(@AuthenticationPrincipal User user, Model model) {
         model.addAttribute("files", fileService.findByOwner(user));
-        return "files-created"; // This is the name of the Thymeleaf template for files created by the user
+        return "files-created";
     }
 }
