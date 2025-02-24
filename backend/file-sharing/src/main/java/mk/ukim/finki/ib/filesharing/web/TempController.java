@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
 
 @Controller
-@RequestMapping({"", "/", "/home", "/files"})
+@RequestMapping({"/", "/home", "/files"})
 @AllArgsConstructor
 public class TempController {
     private final FileService fileService;
@@ -24,10 +24,12 @@ public class TempController {
         model.addAttribute("files", files);
         return "home";
     }
+
     @GetMapping("/register")
     public String register() {
         return "register";
     }
+
     @GetMapping("/login")
     public String login() {
         return "login";

@@ -18,6 +18,7 @@ public interface FileService {
     void removeFile(Long id);
 
     List<UploadedFile> findByOwner(User user);
+
     List<UploadedFile> findByAccess(User user);
 
     void shareFile(Long id, String username, User user, FileAccess.AccessType accessType) throws UnauthorizedAccessException;

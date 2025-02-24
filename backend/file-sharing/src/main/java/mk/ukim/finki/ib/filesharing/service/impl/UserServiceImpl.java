@@ -2,49 +2,26 @@ package mk.ukim.finki.ib.filesharing.service.impl;
 
 import lombok.AllArgsConstructor;
 import mk.ukim.finki.ib.filesharing.model.User;
-import mk.ukim.finki.ib.filesharing.model.exceptions.UserNotFoundException;
 import mk.ukim.finki.ib.filesharing.repository.UserRepository;
 import mk.ukim.finki.ib.filesharing.service.UserService;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-
-import java.util.ArrayList;
-
 
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-
-    @Override
-    public void registerUser(String username, String email, String password) {
-        if (userRepository.findByUsername(username).isPresent()) {
-            throw new RuntimeException("Username already taken!");
-        }
-
-        if (userRepository.findByEmail(email).isPresent()) {
-            throw new RuntimeException("Email already in use!");
-        }
-
-        String hashedPassword = passwordEncoder.encode(password);
-        this.save(new User(username, email, hashedPassword));
-    }
 
     @Override
     public User findByUsername(String username) {
-        return this.userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("username: " + username));
+        return this.userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("User with username %s is not found!", username)));
     }
 
     @Override
-    public void save(User user) {
-        this.userRepository.save(user);
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) {
-        return this.userRepository.findById(username).orElseThrow(() -> new UserNotFoundException("username: " + username));
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return this.userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("User with username %s is not found!", username)));
     }
 }
