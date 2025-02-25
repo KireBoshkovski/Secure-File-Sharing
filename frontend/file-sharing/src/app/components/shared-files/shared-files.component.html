@@ -1,0 +1,21 @@
+<app-header></app-header>
+<div class="container mt-4">
+    <h2 class="text-center">Files you have access to</h2>
+
+    <table class="table table-bordered table-hover mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Filename</th>
+                <th>Filetype</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let file of sharedFiles">
+                <td>{{ file.id }}</td>
+                <td>{{ file.name }}</td>
+                <td>{{ file.type }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

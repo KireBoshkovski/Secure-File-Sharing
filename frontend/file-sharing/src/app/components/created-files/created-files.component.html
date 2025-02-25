@@ -1,0 +1,30 @@
+<app-header></app-header>
+<div class="container mt-4">
+    <h2 class="text-center">Created Files</h2>
+
+    <table class="table table-bordered table-hover mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Filename</th>
+                <th>Filetype</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let file of createdFiles">
+                <td>{{ file.id }}</td>
+                <td>{{ file.name }}</td>
+                <td>{{ file.type }}</td>
+                <td>
+                    <form>
+                        <input #username type="text" name="username" placeholder="Enter friend's username" required />
+                        <button (click)="share(file.id, username.value)">Share</button>
+                    </form>
+                    <button class="btn btn-success btn-sm me-2" (click)="download(file.id)">Download</button>
+                    <button class="btn btn-danger btn-sm" (click)="delete(file.id)">Delete</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

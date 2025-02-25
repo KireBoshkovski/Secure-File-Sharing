@@ -1,0 +1,8 @@
+<app-header></app-header>
+<div class="upload-container">
+    <h2>File Upload</h2>
+
+    <input type="file" (change)="onFileSelected($event)" />
+
+    <button (click)="onUpload()" [disabled]="!selectedFile">Upload</button>
+</div>
