@@ -40,7 +40,6 @@ public class SpringSecurityConfig {
                 .logout((logout) -> logout
                         .logoutUrl("/api/auth/logout")
                         .clearAuthentication(true)
-                        .invalidateHttpSession(true)
                 );
 
         return http.build();

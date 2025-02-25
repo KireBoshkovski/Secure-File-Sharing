@@ -1,6 +1,8 @@
 package mk.ukim.finki.ib.filesharing.web;
 
 import lombok.AllArgsConstructor;
+import mk.ukim.finki.ib.filesharing.DTO.FileDto;
+import mk.ukim.finki.ib.filesharing.encryption.AES;
 import mk.ukim.finki.ib.filesharing.encryption.EncryptionUtils;
 import mk.ukim.finki.ib.filesharing.model.FileAccess;
 import mk.ukim.finki.ib.filesharing.model.UploadedFile;
@@ -15,11 +17,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import mk.ukim.finki.ib.filesharing.encryption.AES;
 
 import javax.crypto.SecretKey;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/files")
@@ -87,13 +88,23 @@ public class FileController {
     }
 
     @GetMapping("/access")
-    public ResponseEntity<List<UploadedFile>> showAllAccessibleFilesByUsername(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(this.fileService.findByAccess(user));
+    public ResponseEntity<List<FileDto>> showAllAccessibleFilesByUsername(@AuthenticationPrincipal User user) {
+        List<FileDto> response = this.fileService.findByAccess(user)
+                .stream()
+                .map(file -> new FileDto(file.getId(), file.getFileName(), file.getFileType()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/created")
-    public ResponseEntity<List<UploadedFile>> showCreatedByUser(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(this.fileService.findByOwner(user));
+    public ResponseEntity<List<FileDto>> showCreatedByUser(@AuthenticationPrincipal User user) {
+        List<FileDto> response = this.fileService.findByOwner(user)
+                .stream()
+                .map(file -> new FileDto(file.getId(), file.getFileName(), file.getFileType()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/share/{id}")
@@ -116,6 +127,4 @@ public class FileController {
 
         return ResponseEntity.ok("File shared successfully with " + username + " with " + type + " access.");
     }
-
-
 }

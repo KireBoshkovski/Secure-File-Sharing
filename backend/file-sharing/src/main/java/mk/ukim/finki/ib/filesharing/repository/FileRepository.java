@@ -11,6 +11,7 @@ import java.util.List;
 @Repository
 public interface FileRepository extends JpaRepository<UploadedFile, Long> {
     List<UploadedFile> findAllByOwner(User owner);
+
     List<UploadedFile> findAllByAccessList_User(User user);
 }
 

@@ -39,7 +39,7 @@ public class UploadedFile {
 
     private LocalDateTime lastModified;
 
-    public UploadedFile(String fileName, String fileType, byte[] data, User owner, byte[]iv) {
+    public UploadedFile(String fileName, String fileType, byte[] data, User owner, byte[] iv) {
         this.fileName = fileName;
         this.fileType = fileType;
         this.data = data;
