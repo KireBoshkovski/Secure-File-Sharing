@@ -25,11 +25,11 @@ export class LoginComponent {
       this.loginForm.get('password')?.value
     ).subscribe({
       next: () => {
-        alert('Login successfull!');
+        alert('Login successful');
         this.router.navigate(['/home']);
       },
       error: (err) => {
-        alert(err.error); 
+        console.log(err.error); 
       }
     });
   }

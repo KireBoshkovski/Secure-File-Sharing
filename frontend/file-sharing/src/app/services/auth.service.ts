@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 
-const AUTH_API = 'http://localhost:8080/api/auth'
+const AUTH_API = 'https://localhost:8080/api/auth'
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
   withCredentials: true,
@@ -23,7 +23,6 @@ export class AuthService {
       { username: username, password: password }, { headers: { 'Content-Type': 'application/json' } })
       .pipe(
         tap((response) => {
-          console.log(response);
           localStorage.setItem('token', response.token);
         })
       )

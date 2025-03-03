@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FileService } from '../../services/file.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-created-files',
@@ -10,7 +11,7 @@ import { FileService } from '../../services/file.service';
 export class CreatedFilesComponent implements OnInit {
   createdFiles: any[] = [];
 
-  constructor(private fileService: FileService) { }
+  constructor(private fileService: FileService, private router: Router) { }
 
   ngOnInit(): void {
     this.loadCreatedFiles();
@@ -21,6 +22,7 @@ export class CreatedFilesComponent implements OnInit {
       next: (data) => this.createdFiles = data,
     });
   }
+
   download(fileId: number) {
     this.fileService.downloadFile(fileId).subscribe(blob => {
       const a = document.createElement('a');
@@ -40,13 +42,11 @@ export class CreatedFilesComponent implements OnInit {
   }
 
   share(fileId: number, username: string) {
-
     const accessType = "READ";
-    console.log(`Sharing file with ID: ${fileId} with ${username} with access type ${accessType}`);
 
-    this.fileService.shareFile(fileId, username, accessType).subscribe({
-      next: () => this.loadCreatedFiles()
-    })
+    this.fileService.shareFile(fileId, username, accessType).subscribe();
+
+    this.router.navigate(['/created-files']);
   }
 
 }

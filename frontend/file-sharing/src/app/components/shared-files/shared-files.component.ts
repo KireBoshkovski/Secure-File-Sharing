@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FileService } from '../../services/file.service';
+import { Router, NavigationEnd } from '@angular/router';
 
 @Component({
   selector: 'app-shared-files',
@@ -10,14 +11,16 @@ import { FileService } from '../../services/file.service';
 export class SharedFilesComponent {
   sharedFiles: any[] = [];
 
-  constructor(private fileService: FileService) { }
-
-  ngOnInit(): void {
-    this.loadCreatedFiles();
+  constructor(private fileService: FileService, private router: Router) { 
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.loadCreatedFiles();
+      }
+    });
   }
 
   loadCreatedFiles() {
-    this.fileService.getCreatedFiles().subscribe({
+    this.fileService.getAccessibleFiles().subscribe({
       next: (data) => this.sharedFiles = data,
     });
   }
