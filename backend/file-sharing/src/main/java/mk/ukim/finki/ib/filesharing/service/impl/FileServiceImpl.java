@@ -12,7 +12,10 @@ import mk.ukim.finki.ib.filesharing.repository.FileRepository;
 import mk.ukim.finki.ib.filesharing.service.FileService;
 import mk.ukim.finki.ib.filesharing.service.UserService;
 import org.springframework.stereotype.Service;
+import mk.ukim.finki.ib.filesharing.encryption.AES;
+import mk.ukim.finki.ib.filesharing.encryption.EncryptionUtils;
 
+import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -26,16 +29,10 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional
     public void save(UploadedFile uploadedFile) {
-        FileAccess access = new FileAccess();
-        access.setUploadedFile(uploadedFile);
-        access.setUser(uploadedFile.getOwner());
-        access.setAccessType(FileAccess.AccessType.BOTH);
-        access.setLastAccessed(LocalDateTime.now());
-
+        FileAccess access = new FileAccess(uploadedFile, uploadedFile.getOwner(), FileAccess.AccessType.EDIT, null);
         uploadedFile.getAccessList().add(access);
         fileRepository.save(uploadedFile);
     }
-
 
     @Override
     public Optional<UploadedFile> findById(Long id) {
@@ -61,41 +58,90 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional
     public List<UploadedFile> findByAccess(User user) {
-        return this.fileRepository.findAllByAccessList_User(user);
+        return fileRepository.findAllByAccessList_User(user);
+    }
+
+    public boolean hasAccess(Long fileId, User user, FileAccess.AccessType accessType) {
+        return fileRepository.findById(fileId)
+                .map(file -> file.getAccessList().stream()
+                        .anyMatch(access -> access.getUser().equals(user) && access.getAccessType() == accessType))
+                .orElse(false);
+    }
+
+    public boolean canDownload(Long fileId, User user) {
+        return fileRepository.findById(fileId)
+                .map(file ->
+                        file.getOwner().equals(user) ||
+                                file.getAccessList().stream()
+                                        .anyMatch(access -> access.getUser().equals(user) &&
+                                                access.getAccessType() == FileAccess.AccessType.DOWNLOAD &&
+                                                (access.getDownloadExpiration() == null || LocalDateTime.now().isBefore(access.getDownloadExpiration()))
+                                        )
+                )
+                .orElse(false);
+    }
+
+    public boolean canEdit(Long fileId, User user) {
+        return hasAccess(fileId, user, FileAccess.AccessType.EDIT);
     }
 
     @Override
     @Transactional
-    public void shareFile(Long id, String username, User user, FileAccess.AccessType accessType) throws UnauthorizedAccessException {
-        UploadedFile file = this.fileRepository.findById(id)
+    public void shareFile(Long id, String username, User owner, FileAccess.AccessType accessType) throws UnauthorizedAccessException {
+        UploadedFile file = fileRepository.findById(id)
                 .orElseThrow(() -> new InvalidFileIdException(id));
 
-        if (!user.getUsername().equals(file.getOwner().getUsername())) {
+        if (!owner.equals(file.getOwner())) {
             throw new UnauthorizedAccessException();
         }
 
-        User targetUser = this.userService.findByUsername(username);
+        User targetUser = userService.findByUsername(username);
         if (targetUser == null) {
             throw new UserNotFoundException("User " + username + " not found.");
         }
 
         boolean hasAccess = file.getAccessList().stream()
-                .anyMatch(access -> access.getUser().getUsername().equals(username));
+                .anyMatch(access -> access.getUser().equals(targetUser) && access.getAccessType() == accessType);
 
         if (hasAccess) {
-            System.out.println("User " + username + " already has access to this file.");
+            System.out.println("User " + username + " already has " + accessType + " access.");
             return;
         }
 
-        FileAccess fileAccess = new FileAccess();
-        fileAccess.setUploadedFile(file);
-        fileAccess.setUser(targetUser);
-        fileAccess.setAccessType(accessType);
-        fileAccess.setLastAccessed(LocalDateTime.now());
-
+        LocalDateTime expiration = (accessType == FileAccess.AccessType.DOWNLOAD) ? LocalDateTime.now().plusHours(24) : null;
+        FileAccess fileAccess = new FileAccess(file, targetUser, accessType, expiration);
         file.getAccessList().add(fileAccess);
-        this.fileRepository.save(file);
+        fileRepository.save(file);
 
         System.out.println("File shared with " + username + " with " + accessType + " access.");
+    }
+
+    @Override
+    @Transactional
+    public void editFile(Long id, byte[] newData, User user) throws UnauthorizedAccessException {
+        UploadedFile file = this.fileRepository.findById(id)
+                .orElseThrow(() -> new InvalidFileIdException(id));
+
+        if (!file.getOwner().equals(user)) {
+            boolean canEdit = file.getAccessList().stream()
+                    .anyMatch(access -> access.getUser().equals(user) &&
+                            (access.getAccessType() == FileAccess.AccessType.EDIT));
+
+            if (!canEdit) {
+                throw new UnauthorizedAccessException();
+            }
+        }
+
+        try {
+            SecretKey secretKey = EncryptionUtils.getSecretKey();
+            byte[] iv = AES.generateIV();
+            byte[] encryptedData = AES.encryptAES(newData, secretKey, iv);
+
+            file.setData(encryptedData);
+            file.setIv(iv);
+            this.fileRepository.save(file);
+        } catch (Exception e) {
+            throw new RuntimeException("File update failed.");
+        }
     }
 }

@@ -52,30 +52,29 @@ public class FileController {
     }
 
     @GetMapping("/download/{id}")
-    public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable Long id) {
-        try {
-            SecretKey secretKey = EncryptionUtils.getSecretKey();
-            return this.fileService.findById(id)
-                    .map(file -> {
-                        try {
-                            byte[] decryptedData = AES.decryptAES(file.getData(), secretKey, file.getIv());
-                            ByteArrayResource resource = new ByteArrayResource(decryptedData);
-
-                            return ResponseEntity.ok()
-                                    .contentType(MediaType.parseMediaType(file.getFileType()))
-                                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFileName() + "\"")
-                                    .body(resource);
-                        } catch (Exception e) {
-                            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                    .body(new ByteArrayResource(new byte[0]));
-                        }
-                    })
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body(new ByteArrayResource(new byte[0])));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ByteArrayResource(new byte[0]));
+    public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        if (!fileService.canDownload(id, user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ByteArrayResource(new byte[0]));
         }
+
+        SecretKey secretKey = EncryptionUtils.getSecretKey();
+        return fileService.findById(id)
+                .map(file -> {
+                    try {
+                        byte[] decryptedData = AES.decryptAES(file.getData(), secretKey, file.getIv());
+                        ByteArrayResource resource = new ByteArrayResource(decryptedData);
+
+                        return ResponseEntity.ok()
+                                .contentType(MediaType.parseMediaType(file.getFileType()))
+                                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFileName() + "\"")
+                                .body(resource);
+                    } catch (Exception e) {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(new ByteArrayResource(new byte[0]));
+                    }
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ByteArrayResource(new byte[0])));
     }
 
     @PostMapping("/delete/{id}")
@@ -116,7 +115,7 @@ public class FileController {
         try {
             type = FileAccess.AccessType.valueOf(accessType.toUpperCase());
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Invalid access type. Use READ, WRITE, or BOTH.");
+            return ResponseEntity.badRequest().body("Invalid access type. Use VIEW, DOWNLOAD OR EDIT.");
         }
 
         try {
@@ -126,5 +125,19 @@ public class FileController {
         }
 
         return ResponseEntity.ok("File shared successfully with " + username + " with " + type + " access.");
+    }
+
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<String> editFile(@PathVariable Long id,
+                                             @RequestParam("file") MultipartFile file,
+                                             @AuthenticationPrincipal User user) {
+        try {
+            fileService.editFile(id, file.getBytes(), user);
+            return ResponseEntity.ok("File updated successfully.");
+        } catch (UnauthorizedAccessException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to edit this file.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File update failed.");
+        }
     }
 }

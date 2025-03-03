@@ -22,4 +22,12 @@ public interface FileService {
     List<UploadedFile> findByAccess(User user);
 
     void shareFile(Long id, String username, User user, FileAccess.AccessType accessType) throws UnauthorizedAccessException;
+
+    boolean hasAccess(Long fileId, User user, FileAccess.AccessType accessType);
+
+    boolean canDownload(Long fileId, User user);
+
+    boolean canEdit(Long fileId, User user);
+
+    void editFile(Long id, byte[] newData, User user) throws UnauthorizedAccessException;
 }
