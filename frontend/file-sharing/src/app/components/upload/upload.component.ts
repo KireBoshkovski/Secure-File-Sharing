@@ -21,6 +21,10 @@ export class UploadComponent {
   }
 
   onUpload(): void {
-    this.fileService.uploadFile(this.selectedFile).subscribe();
+    this.fileService.uploadFile(this.selectedFile).subscribe({
+      next: (response) => {
+        console.log(response);
+      }
+    });
   }
 }

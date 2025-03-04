@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { catchError, Observable, tap } from 'rxjs';
 
 const AUTH_API = 'https://localhost:8080/api/auth'
 const httpOptions = {
@@ -25,7 +25,7 @@ export class AuthService {
         tap((response) => {
           localStorage.setItem('token', response.token);
         })
-      )
+      );
   }
 
   register(username: string, email: string, password: string) {
@@ -38,7 +38,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('token');
-    return this.http.post(AUTH_API + '/logout', {});
+    return this.http.post(AUTH_API + '/logout', {})
   }
 
   isLoggedIn(): boolean {

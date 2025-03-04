@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { catchError, Observable } from 'rxjs';
 
 const FILE_API = 'https://localhost:8080/api/files';
 
@@ -22,6 +22,7 @@ export class FileService {
     formData.append('file', file);
     return this.http.post(`${FILE_API}/upload`, formData, {
       headers: this.getAuthHeaders(),
+      responseType: 'text'
     });
   }
 
@@ -57,6 +58,6 @@ export class FileService {
       .set('username', username)
       .set('accessType', accessType);
 
-    return this.http.post(`${FILE_API}/share/${fileId}`, null , { params, headers: this.getAuthHeaders() });
+    return this.http.post(`${FILE_API}/share/${fileId}`, null, { params, headers: this.getAuthHeaders(), responseType: 'text' });
   }
 }

@@ -41,12 +41,22 @@ export class CreatedFilesComponent implements OnInit {
     });
   }
 
-  share(fileId: number, username: string) {
-    const accessType = "READ";
+  share(fileId: number, usernameInput: HTMLInputElement) {
+    const username = usernameInput.value;
+    const accessType = "VIEW";
 
-    this.fileService.shareFile(fileId, username, accessType).subscribe();
+    this.fileService.shareFile(fileId, username, accessType).subscribe({
+      next: (response) => {
+        console.log(response);
+      }
+    });
 
+    usernameInput.value = '';
     this.router.navigate(['/created-files']);
+  }
+
+  open(fileId: number) {
+    
   }
 
 }

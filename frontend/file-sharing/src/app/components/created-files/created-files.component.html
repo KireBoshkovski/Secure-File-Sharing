@@ -9,6 +9,7 @@
                 <th>Filename</th>
                 <th>Filetype</th>
                 <th>Actions</th>
+                <th>Share</th>
             </tr>
         </thead>
         <tbody>
@@ -17,12 +18,13 @@
                 <td>{{ file.name }}</td>
                 <td>{{ file.type }}</td>
                 <td>
-                    <form>
-                        <input #username type="text" name="username" placeholder="Enter friend's username" required />
-                        <button (click)="share(file.id, username.value)">Share</button>
-                    </form>
                     <button class="btn btn-success btn-sm me-2" (click)="download(file.id)">Download</button>
                     <button class="btn btn-danger btn-sm" (click)="delete(file.id)">Delete</button>
+                    <button class="btn btn-success btn-sm me-2" (click)="open(file.id)">Open</button>
+                </td>
+                <td>
+                    <input #usernameInput type="text" name="username" placeholder="Enter friend's username" required />
+                    <button (click)="share(file.id, usernameInput)">Share</button>
                 </td>
             </tr>
         </tbody>
