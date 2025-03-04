@@ -23,6 +23,7 @@ export class AuthService {
       { username: username, password: password }, { headers: { 'Content-Type': 'application/json' } })
       .pipe(
         tap((response) => {
+          localStorage.setItem('username', username);
           localStorage.setItem('token', response.token);
         })
       );

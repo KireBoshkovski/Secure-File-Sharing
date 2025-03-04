@@ -60,4 +60,11 @@ export class FileService {
 
     return this.http.post(`${FILE_API}/share/${fileId}`, null, { params, headers: this.getAuthHeaders(), responseType: 'text' });
   }
+
+  viewFile(fileId: number) {
+    return this.http.get(`${FILE_API}/download/${fileId}`, {
+      headers: this.getAuthHeaders(),
+      responseType: 'blob',
+    });
+  }
 }

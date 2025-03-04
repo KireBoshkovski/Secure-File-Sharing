@@ -8,6 +8,7 @@
                 <th>ID</th>
                 <th>Filename</th>
                 <th>Filetype</th>
+                <th>Owner</th>
                 <th>Actions</th>
                 <th>Share</th>
             </tr>
@@ -17,10 +18,10 @@
                 <td>{{ file.id }}</td>
                 <td>{{ file.name }}</td>
                 <td>{{ file.type }}</td>
+                <td>{{ file.owner }}</td>
                 <td>
                     <button class="btn btn-success btn-sm me-2" (click)="download(file.id)">Download</button>
                     <button class="btn btn-danger btn-sm" (click)="delete(file.id)">Delete</button>
-                    <button class="btn btn-success btn-sm me-2" (click)="open(file.id)">Open</button>
                 </td>
                 <td>
                     <input #usernameInput type="text" name="username" placeholder="Enter friend's username" required />

@@ -17,7 +17,7 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'created-files', component: CreatedFilesComponent, canActivate: [AuthGuard] },
   { path: 'shared-files', component: SharedFilesComponent, canActivate: [AuthGuard] },
-  { path: 'upload-file', component: UploadComponent, canActivate: [AuthGuard] }
+  { path: 'upload-file', component: UploadComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({

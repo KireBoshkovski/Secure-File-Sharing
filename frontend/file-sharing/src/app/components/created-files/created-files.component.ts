@@ -54,9 +54,4 @@ export class CreatedFilesComponent implements OnInit {
     usernameInput.value = '';
     this.router.navigate(['/created-files']);
   }
-
-  open(fileId: number) {
-    
-  }
-
 }

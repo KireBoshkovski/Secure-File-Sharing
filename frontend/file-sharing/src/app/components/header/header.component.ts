@@ -10,7 +10,11 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
-  constructor(private authService: AuthService) { }
+  username: string | null;
+
+  constructor(private authService: AuthService) {
+    this.username = localStorage.getItem("username");
+   }
 
   logout(){
     this.authService.logout();

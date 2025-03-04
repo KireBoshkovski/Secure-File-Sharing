@@ -8,6 +8,8 @@
                 <th>ID</th>
                 <th>Filename</th>
                 <th>Filetype</th>
+                <th>Owner</th>
+                <th>Open file</th>
             </tr>
         </thead>
         <tbody>
@@ -15,6 +17,8 @@
                 <td>{{ file.id }}</td>
                 <td>{{ file.name }}</td>
                 <td>{{ file.type }}</td>
+                <td>{{ file.owner }}</td>
+                <td><button class="btn btn-success btn-sm" (click)="open(file.id)">View</button></td>
             </tr>
         </tbody>
     </table>

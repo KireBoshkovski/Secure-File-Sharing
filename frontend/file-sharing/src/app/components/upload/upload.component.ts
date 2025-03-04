@@ -26,5 +26,16 @@ export class UploadComponent {
         console.log(response);
       }
     });
+
+    this.clearFileInput();
+  }
+
+  clearFileInput(): void {
+    this.selectedFile = null;
+
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = ''; 
+    }
   }
 }

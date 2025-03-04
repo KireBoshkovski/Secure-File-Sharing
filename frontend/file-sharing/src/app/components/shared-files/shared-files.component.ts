@@ -24,4 +24,14 @@ export class SharedFilesComponent {
       next: (data) => this.sharedFiles = data,
     });
   }
+
+  open(fileId: number) {
+    this.fileService.viewFile(fileId).subscribe((blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+
+      window.open(url, '_blank');
+
+      window.URL.revokeObjectURL(url);
+    });
+  }
 }
