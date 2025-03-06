@@ -30,4 +30,8 @@ public interface FileService {
     boolean canEdit(Long fileId, User user);
 
     void editFile(Long id, byte[] newData, User user) throws UnauthorizedAccessException;
+
+    UploadedFile getFileById(Long id);
+
+    void saveFileAsPdf(Long id, byte[] pdfData, User user) throws UnauthorizedAccessException;
 }

@@ -23,10 +23,18 @@
                     <button class="btn btn-success btn-sm me-2" (click)="download(file.id)">Download</button>
                     <button class="btn btn-danger btn-sm" (click)="delete(file.id)">Delete</button>
                 </td>
-                <td>
-                    <input #usernameInput type="text" name="username" placeholder="Enter friend's username" required />
-                    <button (click)="share(file.id, usernameInput)">Share</button>
-                </td>
+              <td>
+                <input #usernameInput type="text" name="username" placeholder="Enter friend's username" required />
+
+                <select #accessTypeInput class="form-select">
+                  <option value="VIEW">View</option>
+                  <option value="EDIT">Edit</option>
+                  <option value="DOWNLOAD">Download</option>
+                </select>
+
+                <button class="btn btn-primary btn-sm" (click)="share(file.id, usernameInput, accessTypeInput)">Share</button>
+              </td>
+
             </tr>
         </tbody>
     </table>

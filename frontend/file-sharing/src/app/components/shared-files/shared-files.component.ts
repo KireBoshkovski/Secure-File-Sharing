@@ -6,12 +6,12 @@ import { Router, NavigationEnd } from '@angular/router';
   selector: 'app-shared-files',
   standalone: false,
   templateUrl: './shared-files.component.html',
-  styleUrl: './shared-files.component.css'
+  styleUrls: ['./shared-files.component.css']
 })
 export class SharedFilesComponent {
   sharedFiles: any[] = [];
 
-  constructor(private fileService: FileService, private router: Router) { 
+  constructor(private fileService: FileService, private router: Router) {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.loadCreatedFiles();
@@ -33,5 +33,25 @@ export class SharedFilesComponent {
 
       window.URL.revokeObjectURL(url);
     });
+  }
+
+  download(fileId: number, filename: string) {
+    this.fileService.downloadFile(fileId).subscribe(
+      (response: Blob) => {
+        const url = window.URL.createObjectURL(response);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      (error) => {
+        console.error('Error downloading file:', error);
+      }
+    );
+  }
+
+  edit(fileId: number) {
+    this.router.navigate([`/edit/${fileId}`]);
   }
 }

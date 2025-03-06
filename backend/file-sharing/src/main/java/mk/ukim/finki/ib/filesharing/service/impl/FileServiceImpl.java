@@ -30,7 +30,7 @@ public class FileServiceImpl implements FileService {
     @Transactional
     public void save(UploadedFile uploadedFile) {
         FileAccess access = new FileAccess(uploadedFile, uploadedFile.getOwner(), FileAccess.AccessType.EDIT, null);
-        uploadedFile.getAccessList().add(access);
+       // uploadedFile.getAccessList().add(access);
         fileRepository.save(uploadedFile);
     }
 
@@ -58,7 +58,7 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional
     public List<UploadedFile> findByAccess(User user) {
-        return fileRepository.findAllByAccessList_User(user);
+        return fileRepository.findAllSharedWithUser(user);
     }
 
     public boolean hasAccess(Long fileId, User user, FileAccess.AccessType accessType) {
@@ -143,5 +143,26 @@ public class FileServiceImpl implements FileService {
         } catch (Exception e) {
             throw new RuntimeException("File update failed.");
         }
+    }
+
+    public UploadedFile getFileById(Long id) {
+        return fileRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("File not found"));
+    }
+
+    // Save the converted file as a PDF
+    public void saveFileAsPdf(Long fileId, byte[] pdfData, User user) throws UnauthorizedAccessException {
+        UploadedFile uploadedFile = fileRepository.findById(fileId)
+                .orElseThrow(() -> new RuntimeException("File not found"));
+
+        if (!uploadedFile.getOwner().equals(user)) {
+            throw new UnauthorizedAccessException();
+        }
+
+        uploadedFile.setData(pdfData);
+        uploadedFile.setFileType("application/pdf");  // Change the file type to PDF
+        uploadedFile.setLastModified(LocalDateTime.now());
+
+        fileRepository.save(uploadedFile);
     }
 }

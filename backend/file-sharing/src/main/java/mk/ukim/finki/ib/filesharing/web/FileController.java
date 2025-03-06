@@ -2,12 +2,14 @@ package mk.ukim.finki.ib.filesharing.web;
 
 import lombok.AllArgsConstructor;
 import mk.ukim.finki.ib.filesharing.DTO.FileDto;
+import mk.ukim.finki.ib.filesharing.DTO.SharedFileDto;
 import mk.ukim.finki.ib.filesharing.encryption.AES;
 import mk.ukim.finki.ib.filesharing.encryption.EncryptionUtils;
 import mk.ukim.finki.ib.filesharing.model.FileAccess;
 import mk.ukim.finki.ib.filesharing.model.UploadedFile;
 import mk.ukim.finki.ib.filesharing.model.User;
 import mk.ukim.finki.ib.filesharing.model.exceptions.UnauthorizedAccessException;
+import mk.ukim.finki.ib.filesharing.service.FileAccessService;
 import mk.ukim.finki.ib.filesharing.service.FileService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.SecretKey;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class FileController {
     private final FileService fileService;
+    private final FileAccessService fileAccessService;
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file,
@@ -88,20 +92,38 @@ public class FileController {
     }
 
     @GetMapping("/access")
-    public ResponseEntity<List<FileDto>> showAllAccessibleFilesByUsername(@AuthenticationPrincipal User user) {
-        List<FileDto> response = this.fileService.findByAccess(user)
+    public ResponseEntity<List<SharedFileDto>> showAllAccessibleFilesByUsername(@AuthenticationPrincipal User user) {
+        List<SharedFileDto> response = this.fileService.findByAccess(user)
                 .stream()
-                .map(file -> new FileDto(file.getId(), file.getFileName(), file.getFileType(), file.getOwner().getUsername()))
+                .map(file -> {
+                    // Fetch the list of unique access types for the user and file
+                    List<FileAccess.AccessType> accessTypes = fileAccessService.getAccessTypesForFileAndUser(file.getId(), user.getUsername());
+
+                    return new SharedFileDto(
+                            file.getId(),
+                            file.getFileName(),
+                            file.getFileType(),
+                            file.getOwner().getUsername(),
+                            accessTypes // Add the list of access types
+                    );
+                })
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(response);
+
+/*        List<FileDto> response = this.fileService.findByAccess(user)
+                .stream()
+                .map(file -> new FileDto(file.getId(), file.getFileName(), file.getFileType(), file.getOwner().getUsername(), file.getLastModified().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);*/
     }
 
     @GetMapping("/created")
     public ResponseEntity<List<FileDto>> showCreatedByUser(@AuthenticationPrincipal User user) {
         List<FileDto> response = this.fileService.findByOwner(user)
                 .stream()
-                .map(file -> new FileDto(file.getId(), file.getFileName(), file.getFileType(), file.getOwner().getUsername()))
+                .map(file -> new FileDto(file.getId(), file.getFileName(), file.getFileType(), file.getOwner().getUsername(), file.getLastModified().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(response);
@@ -124,7 +146,6 @@ public class FileController {
         } catch (UnauthorizedAccessException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
-
         return ResponseEntity.ok("File shared successfully with " + username + " with " + type + " access.");
     }
 

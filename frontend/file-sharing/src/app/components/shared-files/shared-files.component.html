@@ -1,25 +1,29 @@
 <app-header></app-header>
 <div class="container mt-4">
-    <h2 class="text-center">Files you have access to</h2>
+  <h2 class="text-center">Files you have access to</h2>
 
-    <table class="table table-bordered table-hover mt-3">
-        <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Filename</th>
-                <th>Filetype</th>
-                <th>Owner</th>
-                <th>Open file</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let file of sharedFiles">
-                <td>{{ file.id }}</td>
-                <td>{{ file.name }}</td>
-                <td>{{ file.type }}</td>
-                <td>{{ file.owner }}</td>
-                <td><button class="btn btn-success btn-sm" (click)="open(file.id)">View</button></td>
-            </tr>
-        </tbody>
-    </table>
+  <table class="table table-bordered table-hover mt-3">
+    <thead class="table-dark">
+    <tr>
+      <th>ID</th>
+      <th>Filename</th>
+      <th>File Type</th>
+      <th>Shared by</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let file of sharedFiles">
+      <td>{{ file.id }}</td>
+      <td>{{ file.name }}</td>
+      <td>{{ file.type }}</td>
+      <td>{{ file.owner }}</td>
+      <td>
+        <button *ngIf="file.accessType.includes('VIEW')" class="btn btn-success btn-sm" (click)="open(file.id)">View</button>
+        <button *ngIf="file.accessType.includes('DOWNLOAD')" class="btn btn-primary btn-sm" (click)="download(file.id, file.name)">Download</button>
+        <button *ngIf="file.accessType.includes('EDIT')" class="btn btn-warning btn-sm" (click)="edit(file.id)">Edit</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
 </div>
