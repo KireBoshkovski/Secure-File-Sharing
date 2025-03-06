@@ -9,7 +9,7 @@
                 <th>Filename</th>
                 <th>Filetype</th>
                 <th>Owner</th>
-                <th>Open file</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -18,8 +18,12 @@
                 <td>{{ file.name }}</td>
                 <td>{{ file.type }}</td>
                 <td>{{ file.owner }}</td>
-                <td><button class="btn btn-success btn-sm" (click)="open(file.id)">View</button></td>
+                <td class="text-center">
+                    <button class="btn btn-success btn-sm me-2" (click)="open(file.id)">View</button>
+                    <button class="btn btn-primary btn-sm me-2" (click)="download(file.id, file.name)">Download</button>
+                    <button class="btn btn-danger btn-sm me-2" (click)="edit(file.id)">Edit</button>
+                </td>
             </tr>
         </tbody>
     </table>
-</div>
+</div>  

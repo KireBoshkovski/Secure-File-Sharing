@@ -2,6 +2,8 @@ package mk.ukim.finki.ib.filesharing.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import mk.ukim.finki.ib.filesharing.encryption.AES;
+import mk.ukim.finki.ib.filesharing.encryption.EncryptionUtils;
 import mk.ukim.finki.ib.filesharing.model.FileAccess;
 import mk.ukim.finki.ib.filesharing.model.UploadedFile;
 import mk.ukim.finki.ib.filesharing.model.User;
@@ -12,8 +14,6 @@ import mk.ukim.finki.ib.filesharing.repository.FileRepository;
 import mk.ukim.finki.ib.filesharing.service.FileService;
 import mk.ukim.finki.ib.filesharing.service.UserService;
 import org.springframework.stereotype.Service;
-import mk.ukim.finki.ib.filesharing.encryption.AES;
-import mk.ukim.finki.ib.filesharing.encryption.EncryptionUtils;
 
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
@@ -70,13 +70,13 @@ public class FileServiceImpl implements FileService {
 
     public boolean canDownload(Long fileId, User user) {
         return fileRepository.findById(fileId)
-                .map(file ->
-                        file.getOwner().equals(user) ||
-                                file.getAccessList().stream()
-                                        .anyMatch(access -> access.getUser().equals(user) &&
-                                                access.getAccessType() == FileAccess.AccessType.DOWNLOAD &&
-                                                (access.getDownloadExpiration() == null || LocalDateTime.now().isBefore(access.getDownloadExpiration()))
-                                        )
+                .map(file -> file
+                        .getOwner().equals(user) || file.getAccessList()
+                        .stream()
+                        .anyMatch(access -> access.getUser().equals(user) &&
+                                access.getAccessType() == FileAccess.AccessType.DOWNLOAD &&
+                                (access.getDownloadExpiration() == null || LocalDateTime.now().isBefore(access.getDownloadExpiration()))
+                        )
                 )
                 .orElse(false);
     }

@@ -8,9 +8,7 @@
                 <th>ID</th>
                 <th>Filename</th>
                 <th>Filetype</th>
-                <th>Owner</th>
                 <th>Actions</th>
-                <th>Share</th>
             </tr>
         </thead>
         <tbody>
@@ -18,16 +16,15 @@
                 <td>{{ file.id }}</td>
                 <td>{{ file.name }}</td>
                 <td>{{ file.type }}</td>
-                <td>{{ file.owner }}</td>
-                <td>
-                    <button class="btn btn-success btn-sm me-2" (click)="download(file.id)">Download</button>
-                    <button class="btn btn-danger btn-sm" (click)="delete(file.id)">Delete</button>
-                </td>
-                <td>
-                    <input #usernameInput type="text" name="username" placeholder="Enter friend's username" required />
-                    <button (click)="share(file.id, usernameInput)">Share</button>
+                <td class="text-center">
+                    <button class="btn btn-primary btn-sm me-2" (click)="openSharePopup(file.id)">Share</button>
+                    <button class="btn btn-danger btn-sm me-2" (click)="delete(file.id)">Delete</button>
                 </td>
             </tr>
         </tbody>
     </table>
+
+    <div *ngIf="showSharePopup"></div>
+    <app-share-popup *ngIf="showSharePopup" (close)="showSharePopup = false"
+        (share)="onShare($event)"></app-share-popup>
 </div>

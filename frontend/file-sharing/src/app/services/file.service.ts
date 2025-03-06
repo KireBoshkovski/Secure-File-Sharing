@@ -27,8 +27,11 @@ export class FileService {
   }
 
   downloadFile(fileId: number): Observable<Blob> {
+    const params = new HttpParams().set('accessRequest', 'DOWNLOAD');
+
     return this.http.get(`${FILE_API}/download/${fileId}`, {
       headers: this.getAuthHeaders(),
+      params: params,
       responseType: 'blob',
     });
   }
@@ -62,8 +65,11 @@ export class FileService {
   }
 
   viewFile(fileId: number) {
+    const params = new HttpParams().set('accessRequest', 'VIEW');
+
     return this.http.get(`${FILE_API}/download/${fileId}`, {
       headers: this.getAuthHeaders(),
+      params: params,
       responseType: 'blob',
     });
   }

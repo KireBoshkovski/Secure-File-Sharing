@@ -11,7 +11,7 @@ import { Router, NavigationEnd } from '@angular/router';
 export class SharedFilesComponent {
   sharedFiles: any[] = [];
 
-  constructor(private fileService: FileService, private router: Router) { 
+  constructor(private fileService: FileService, private router: Router) {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.loadCreatedFiles();
@@ -33,5 +33,21 @@ export class SharedFilesComponent {
 
       window.URL.revokeObjectURL(url);
     });
+  }
+
+  download(fileId: number, fileName: string) {
+    this.fileService.downloadFile(fileId, ).subscribe(blob => {
+      const a = document.createElement('a');
+      const objectUrl = URL.createObjectURL(blob);
+      a.href = objectUrl;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(objectUrl);
+    });
+  }
+
+  edit(fileId: number) {
+    //TODO
+    console.log("editing file with file id: " + fileId);
   }
 }

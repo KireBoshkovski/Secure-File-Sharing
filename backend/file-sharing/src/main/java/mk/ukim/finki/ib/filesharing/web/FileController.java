@@ -51,10 +51,12 @@ public class FileController {
         return ResponseEntity.ok("File uploaded successfully.");
     }
 
+    //Used for download and opening a specific file in the browser
+    //TODO: IMPLEMENT FILE EDITING
     @GetMapping("/download/{id}")
-    public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable Long id, @AuthenticationPrincipal User user) {
-//        if (!fileService.canDownload(id, user)) {
-        if (false) {
+    public ResponseEntity<ByteArrayResource> getFile(@PathVariable Long id, @RequestParam FileAccess.AccessType accessRequest, @AuthenticationPrincipal User user) {
+        if ((accessRequest.equals(FileAccess.AccessType.DOWNLOAD) && !fileService.canDownload(id, user))
+                || (!accessRequest.equals(FileAccess.AccessType.DOWNLOAD) && !fileService.hasAccess(id, user, accessRequest))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ByteArrayResource(new byte[0]));
         }
 
