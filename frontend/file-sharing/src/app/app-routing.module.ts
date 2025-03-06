@@ -8,6 +8,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { CreatedFilesComponent } from './components/created-files/created-files.component';
 import { SharedFilesComponent } from './components/shared-files/shared-files.component';
 import { UploadComponent } from './components/upload/upload.component';
+import { EditTextFileComponent } from './edit-text-file/edit-text-file.component';
 
 
 const routes: Routes = [
@@ -18,6 +19,7 @@ const routes: Routes = [
   { path: 'created-files', component: CreatedFilesComponent, canActivate: [AuthGuard] },
   { path: 'shared-files', component: SharedFilesComponent, canActivate: [AuthGuard] },
   { path: 'upload-file', component: UploadComponent, canActivate: [AuthGuard] },
+  { path: 'edit-text-file', component: EditTextFileComponent, canActivate: [AuthGuard] }
 ];
 
 @NgModule({

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.SecretKey;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,8 +52,7 @@ public class FileController {
         return ResponseEntity.ok("File uploaded successfully.");
     }
 
-    //Used for download and opening a specific file in the browser
-    //TODO: IMPLEMENT FILE EDITING
+    //TODO
     @GetMapping("/download/{id}")
     public ResponseEntity<ByteArrayResource> getFile(@PathVariable Long id, @RequestParam FileAccess.AccessType accessRequest, @AuthenticationPrincipal User user) {
         if ((accessRequest.equals(FileAccess.AccessType.DOWNLOAD) && !fileService.canDownload(id, user))
@@ -93,7 +93,7 @@ public class FileController {
     public ResponseEntity<List<FileDto>> showAllAccessibleFilesByUsername(@AuthenticationPrincipal User user) {
         List<FileDto> response = this.fileService.findByAccess(user)
                 .stream()
-                .map(file -> new FileDto(file.getId(), file.getFileName(), file.getFileType(), file.getOwner().getUsername()))
+                .map(file -> new FileDto(file.getId(), file.getFileName(), file.getFileType(), file.getOwner().getUsername(), file.getLastModified().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(response);
@@ -103,7 +103,7 @@ public class FileController {
     public ResponseEntity<List<FileDto>> showCreatedByUser(@AuthenticationPrincipal User user) {
         List<FileDto> response = this.fileService.findByOwner(user)
                 .stream()
-                .map(file -> new FileDto(file.getId(), file.getFileName(), file.getFileType(), file.getOwner().getUsername()))
+                .map(file -> new FileDto(file.getId(), file.getFileName(), file.getFileType(), file.getOwner().getUsername(), file.getLastModified().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(response);
@@ -132,10 +132,10 @@ public class FileController {
 
     @PutMapping("/edit/{id}")
     public ResponseEntity<String> editFile(@PathVariable Long id,
-                                           @RequestParam("file") MultipartFile file,
+                                           @RequestParam String content,
                                            @AuthenticationPrincipal User user) {
         try {
-            fileService.editFile(id, file.getBytes(), user);
+            fileService.editFile(id, content.getBytes(), user);
             return ResponseEntity.ok("File updated successfully.");
         } catch (UnauthorizedAccessException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to edit this file.");

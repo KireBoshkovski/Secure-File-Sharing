@@ -10,4 +10,5 @@ public class FileDto {
     private String name;
     private String type;
     private String owner;
+    private String lastAccess;
 }

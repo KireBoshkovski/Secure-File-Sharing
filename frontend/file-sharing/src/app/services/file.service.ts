@@ -64,13 +64,18 @@ export class FileService {
     return this.http.post(`${FILE_API}/share/${fileId}`, null, { params, headers: this.getAuthHeaders(), responseType: 'text' });
   }
 
-  viewFile(fileId: number) {
-    const params = new HttpParams().set('accessRequest', 'VIEW');
+  viewFile(fileId: number, accessRequest: string) {
+    const params = new HttpParams().set('accessRequest', accessRequest);
 
     return this.http.get(`${FILE_API}/download/${fileId}`, {
       headers: this.getAuthHeaders(),
       params: params,
       responseType: 'blob',
     });
+  }
+
+  editFile(fileId: number, content: string): Observable<any> {
+    const params = new HttpParams().set('content', content);
+    return this.http.put(`${FILE_API}/edit/${fileId}`, null, { params: params, headers: this.getAuthHeaders(), responseType: 'text' });
   }
 }

@@ -137,6 +137,7 @@ public class FileServiceImpl implements FileService {
             byte[] iv = AES.generateIV();
             byte[] encryptedData = AES.encryptAES(newData, secretKey, iv);
 
+            file.setLastModified(LocalDateTime.now());
             file.setData(encryptedData);
             file.setIv(iv);
             this.fileRepository.save(file);

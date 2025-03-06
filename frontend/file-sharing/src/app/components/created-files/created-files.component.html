@@ -8,6 +8,7 @@
                 <th>ID</th>
                 <th>Filename</th>
                 <th>Filetype</th>
+                <th>Last modified at</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -16,6 +17,7 @@
                 <td>{{ file.id }}</td>
                 <td>{{ file.name }}</td>
                 <td>{{ file.type }}</td>
+                <td>{{ file.lastAccess }}</td>
                 <td class="text-center">
                     <button class="btn btn-primary btn-sm me-2" (click)="openSharePopup(file.id)">Share</button>
                     <button class="btn btn-danger btn-sm me-2" (click)="delete(file.id)">Delete</button>
