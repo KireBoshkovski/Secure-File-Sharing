@@ -1,0 +1,29 @@
+<div class="popup modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Share File</h2>
+            <button type="button" class="btn-close ms-auto" (click)="onClose()"></button>
+        </div>
+        <div class="modal-body">
+            <form (ngSubmit)="onShare()">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Friend's Username:</label>
+                    <input id="username" [(ngModel)]="username" name="username" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="permissions" class="form-label">With permission:</label>
+                    <select id="permissions" [(ngModel)]="selectedPermission" name="permissions" class="form-select"
+                        required>
+                        <option value="VIEW">View</option>
+                        <option value="DOWNLOAD">Download</option>
+                        <option value="EDIT">Edit</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Share</button>
+                    <button type="button" class="btn btn-secondary" (click)="onClose()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

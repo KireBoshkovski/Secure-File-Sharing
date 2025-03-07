@@ -5,37 +5,26 @@
     <table class="table table-bordered table-hover mt-3">
         <thead class="table-dark">
             <tr>
-                <th>ID</th>
                 <th>Filename</th>
                 <th>Filetype</th>
-                <th>Owner</th>
+                <th>Last modified at</th>
                 <th>Actions</th>
-                <th>Share</th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let file of createdFiles">
-                <td>{{ file.id }}</td>
                 <td>{{ file.name }}</td>
                 <td>{{ file.type }}</td>
-                <td>{{ file.owner }}</td>
-                <td>
-                    <button class="btn btn-success btn-sm me-2" (click)="download(file.id)">Download</button>
-                    <button class="btn btn-danger btn-sm" (click)="delete(file.id)">Delete</button>
+                <td>{{ file.lastAccess }}</td>
+                <td class="text-center">
+                    <button class="btn btn-primary btn-sm me-2" (click)="openSharePopup(file.id)">Share</button>
+                    <button class="btn btn-danger btn-sm me-2" (click)="delete(file.id)">Delete</button>
                 </td>
-              <td>
-                <input #usernameInput type="text" name="username" placeholder="Enter friend's username" required />
-
-                <select #accessTypeInput class="form-select">
-                  <option value="VIEW">View</option>
-                  <option value="EDIT">Edit</option>
-                  <option value="DOWNLOAD">Download</option>
-                </select>
-
-                <button class="btn btn-primary btn-sm" (click)="share(file.id, usernameInput, accessTypeInput)">Share</button>
-              </td>
-
             </tr>
         </tbody>
     </table>
+
+    <div *ngIf="showSharePopup"></div>
+    <app-share-popup *ngIf="showSharePopup" (close)="showSharePopup = false"
+        (share)="onShare($event)"></app-share-popup>
 </div>

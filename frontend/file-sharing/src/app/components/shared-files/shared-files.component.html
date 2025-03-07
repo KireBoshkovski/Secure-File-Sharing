@@ -5,8 +5,7 @@
   <table class="table table-bordered table-hover mt-3">
     <thead class="table-dark">
     <tr>
-      <th>ID</th>
-      <th>Filename</th>
+      <th>File Name</th>
       <th>File Type</th>
       <th>Shared by</th>
       <th>Actions</th>
@@ -14,14 +13,13 @@
     </thead>
     <tbody>
     <tr *ngFor="let file of sharedFiles">
-      <td>{{ file.id }}</td>
       <td>{{ file.name }}</td>
       <td>{{ file.type }}</td>
       <td>{{ file.owner }}</td>
       <td>
-        <button *ngIf="file.accessType.includes('VIEW')" class="btn btn-success btn-sm" (click)="open(file.id)">View</button>
-        <button *ngIf="file.accessType.includes('DOWNLOAD')" class="btn btn-primary btn-sm" (click)="download(file.id, file.name)">Download</button>
-        <button *ngIf="file.accessType.includes('EDIT')" class="btn btn-warning btn-sm" (click)="edit(file.id)">Edit</button>
+        <button *ngIf="file.accessTypes && file.accessTypes.includes('VIEW')" class="btn btn-success btn-sm" (click)="open(file.id)">View</button>
+        <button *ngIf="file.accessTypes && file.accessTypes.includes('DOWNLOAD')" class="btn btn-primary btn-sm" (click)="download(file.id, file.name)">Download</button>
+        <button *ngIf="file.accessTypes && file.accessTypes.includes('EDIT')" class="btn btn-warning btn-sm" (click)="openEditor(file.id)">Edit</button>
       </td>
     </tr>
     </tbody>

@@ -11,6 +11,9 @@ import { Router } from '@angular/router';
 export class CreatedFilesComponent implements OnInit {
   createdFiles: any[] = [];
 
+  showSharePopup: boolean = false;
+  selectedFileId: number = 1;
+
   constructor(private fileService: FileService, private router: Router) { }
 
   ngOnInit(): void {
@@ -23,15 +26,28 @@ export class CreatedFilesComponent implements OnInit {
     });
   }
 
-  download(fileId: number) {
-    this.fileService.downloadFile(fileId).subscribe(blob => {
-      const a = document.createElement('a');
-      const objectUrl = URL.createObjectURL(blob);
-      a.href = objectUrl;
-      a.download = 'file';
-      a.click();
-      URL.revokeObjectURL(objectUrl);
-    });
+  openSharePopup(fileId: number): void {
+    this.selectedFileId = fileId;
+    this.showSharePopup = true;
+  }
+
+  onShare(event: { username: string, permission: any }) {
+    const fileId = this.selectedFileId;
+    const username = event.username;
+    const accessType = event.permission;
+
+    console.log('Sharing with:', event.username, 'Permissions:', event.permission);
+    this.fileService.shareFile(fileId, username, accessType).subscribe({
+      next: (response) => {
+        console.log('File shared successfully:', response);
+        this.showSharePopup = false;
+      },
+      error: (error) => {
+        console.error('Error sharing file:', error);
+      },
+    })
+
+    this.showSharePopup = false;
   }
 
   delete(fileId: number) {
@@ -39,27 +55,5 @@ export class CreatedFilesComponent implements OnInit {
       next: () => this.loadCreatedFiles(),
       error: (err) => console.error('Delete failed', err),
     });
-  }
-
-  share(fileId: number, usernameInput: HTMLInputElement, accessTypeInput: HTMLSelectElement) {
-    const username = usernameInput.value;
-    const accessType = accessTypeInput.value;
-
-    if (!username) {
-      alert("Please enter a username");
-      return;
-    }
-
-    this.fileService.shareFile(fileId, username, accessType).subscribe({
-      next: (response) => {
-        console.log(response);
-      },
-      error: (err) => {
-        console.error('Share failed', err);
-      }
-    });
-
-    usernameInput.value = '';
-    this.router.navigate(['/created-files']);
   }
 }

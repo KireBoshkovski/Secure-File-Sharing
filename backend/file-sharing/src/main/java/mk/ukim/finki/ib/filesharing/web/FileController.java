@@ -55,10 +55,11 @@ public class FileController {
         return ResponseEntity.ok("File uploaded successfully.");
     }
 
+    //TODO
     @GetMapping("/download/{id}")
-    public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable Long id, @AuthenticationPrincipal User user) {
-//        if (!fileService.canDownload(id, user)) {
-        if (false) {
+    public ResponseEntity<ByteArrayResource> getFile(@PathVariable Long id, @RequestParam FileAccess.AccessType accessRequest, @AuthenticationPrincipal User user) {
+        if ((accessRequest.equals(FileAccess.AccessType.DOWNLOAD) && !fileService.canDownload(id, user))
+                || (!accessRequest.equals(FileAccess.AccessType.DOWNLOAD) && !fileService.hasAccess(id, user, accessRequest))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ByteArrayResource(new byte[0]));
         }
 
@@ -96,7 +97,6 @@ public class FileController {
         List<SharedFileDto> response = this.fileService.findByAccess(user)
                 .stream()
                 .map(file -> {
-                    // Fetch the list of unique access types for the user and file
                     List<FileAccess.AccessType> accessTypes = fileAccessService.getAccessTypesForFileAndUser(file.getId(), user.getUsername());
 
                     return new SharedFileDto(
@@ -104,19 +104,12 @@ public class FileController {
                             file.getFileName(),
                             file.getFileType(),
                             file.getOwner().getUsername(),
-                            accessTypes // Add the list of access types
+                            accessTypes
                     );
                 })
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(response);
-
-/*        List<FileDto> response = this.fileService.findByAccess(user)
-                .stream()
-                .map(file -> new FileDto(file.getId(), file.getFileName(), file.getFileType(), file.getOwner().getUsername(), file.getLastModified().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(response);*/
     }
 
     @GetMapping("/created")
@@ -151,10 +144,10 @@ public class FileController {
 
     @PutMapping("/edit/{id}")
     public ResponseEntity<String> editFile(@PathVariable Long id,
-                                           @RequestParam("file") MultipartFile file,
+                                           @RequestParam String content,
                                            @AuthenticationPrincipal User user) {
         try {
-            fileService.editFile(id, file.getBytes(), user);
+            fileService.editFile(id, content.getBytes(), user);
             return ResponseEntity.ok("File updated successfully.");
         } catch (UnauthorizedAccessException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to edit this file.");

@@ -1,22 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FileService } from '../../services/file.service';
 import { Router, NavigationEnd } from '@angular/router';
+
 
 @Component({
   selector: 'app-shared-files',
   standalone: false,
   templateUrl: './shared-files.component.html',
-  styleUrls: ['./shared-files.component.css']
+  styleUrl: './shared-files.component.css'
 })
-export class SharedFilesComponent {
+export class SharedFilesComponent implements OnInit {
   sharedFiles: any[] = [];
 
-  constructor(private fileService: FileService, private router: Router) {
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        this.loadCreatedFiles();
-      }
-    });
+  constructor(private fileService: FileService, private router: Router) { }
+
+  ngOnInit(): void {
+    this.loadCreatedFiles();
   }
 
   loadCreatedFiles() {
@@ -26,7 +25,7 @@ export class SharedFilesComponent {
   }
 
   open(fileId: number) {
-    this.fileService.viewFile(fileId).subscribe((blob: Blob) => {
+    this.fileService.viewFile(fileId, 'VIEW').subscribe((blob: Blob) => {
       const url = window.URL.createObjectURL(blob);
 
       window.open(url, '_blank');
@@ -35,23 +34,23 @@ export class SharedFilesComponent {
     });
   }
 
-  download(fileId: number, filename: string) {
-    this.fileService.downloadFile(fileId).subscribe(
-      (response: Blob) => {
-        const url = window.URL.createObjectURL(response);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        link.click();
-        window.URL.revokeObjectURL(url);
-      },
-      (error) => {
-        console.error('Error downloading file:', error);
-      }
-    );
+  download(fileId: number, fileName: string) {
+    this.fileService.downloadFile(fileId).subscribe(blob => {
+      const a = document.createElement('a');
+      const objectUrl = URL.createObjectURL(blob);
+      a.href = objectUrl;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(objectUrl);
+    });
   }
 
-  edit(fileId: number) {
-    this.router.navigate([`/edit/${fileId}`]);
+  openEditor(fileId: number) {
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/edit-text-file'], {
+        queryParams: { id: fileId },
+      })
+    );
+    window.open(url, '_blank');
   }
 }
