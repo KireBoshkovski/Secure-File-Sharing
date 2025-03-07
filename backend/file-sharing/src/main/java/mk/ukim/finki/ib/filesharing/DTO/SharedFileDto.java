@@ -14,5 +14,6 @@ public class SharedFileDto {
     private String name;
     private String type;
     private String owner;
+    private String lastAccess;
     private List<FileAccess.AccessType> accessTypes;
 }

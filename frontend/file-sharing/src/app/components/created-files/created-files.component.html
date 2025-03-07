@@ -17,6 +17,9 @@
                 <td>{{ file.type }}</td>
                 <td>{{ file.lastAccess }}</td>
                 <td class="text-center">
+                    <button class="btn btn-success btn-sm me-2" (click)="open(file.id)">View</button>
+                    <button class="btn btn-primary btn-sm me-2" (click)="download(file.id, file.name)">Download</button>
+                    <button class="btn btn-warning btn-sm me-2" (click)="openEditor(file.id)">Edit</button>
                     <button class="btn btn-primary btn-sm me-2" (click)="openSharePopup(file.id)">Share</button>
                     <button class="btn btn-danger btn-sm me-2" (click)="delete(file.id)">Delete</button>
                 </td>

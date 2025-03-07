@@ -26,6 +26,36 @@ export class CreatedFilesComponent implements OnInit {
     });
   }
 
+  open(fileId: number) {
+    this.fileService.viewFile(fileId, 'VIEW').subscribe((blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+
+      window.open(url, '_blank');
+
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
+  download(fileId: number, fileName: string) {
+    this.fileService.downloadFile(fileId).subscribe(blob => {
+      const a = document.createElement('a');
+      const objectUrl = URL.createObjectURL(blob);
+      a.href = objectUrl;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(objectUrl);
+    });
+  }
+
+  openEditor(fileId: number) {
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/edit-text-file'], {
+        queryParams: { id: fileId },
+      })
+    );
+    window.open(url, '_blank');
+  }
+
   openSharePopup(fileId: number): void {
     this.selectedFileId = fileId;
     this.showSharePopup = true;

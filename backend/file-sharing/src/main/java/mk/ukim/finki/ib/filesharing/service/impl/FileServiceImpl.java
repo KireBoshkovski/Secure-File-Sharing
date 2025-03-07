@@ -29,9 +29,7 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional
     public void save(UploadedFile uploadedFile) {
-        FileAccess access = new FileAccess(uploadedFile, uploadedFile.getOwner(), FileAccess.AccessType.EDIT, null);
-       // uploadedFile.getAccessList().add(access);
-        fileRepository.save(uploadedFile);
+        this.fileRepository.save(uploadedFile);
     }
 
     @Override
@@ -58,7 +56,7 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional
     public List<UploadedFile> findByAccess(User user) {
-        return fileRepository.findAllSharedWithUser(user);
+        return fileRepository.findAllByAccessList_User(user);
     }
 
     public boolean hasAccess(Long fileId, User user, FileAccess.AccessType accessType) {

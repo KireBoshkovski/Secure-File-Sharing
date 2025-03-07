@@ -1,7 +1,6 @@
-.table th,
-.table td {
-  max-width: 150px;
+table {
+  width: 100%;
+}
+.text-center {
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }

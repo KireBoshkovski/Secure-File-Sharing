@@ -1,7 +1,6 @@
 package mk.ukim.finki.ib.filesharing.web;
 
 import lombok.AllArgsConstructor;
-import mk.ukim.finki.ib.filesharing.DTO.FileDto;
 import mk.ukim.finki.ib.filesharing.DTO.SharedFileDto;
 import mk.ukim.finki.ib.filesharing.encryption.AES;
 import mk.ukim.finki.ib.filesharing.encryption.EncryptionUtils;
@@ -55,14 +54,14 @@ public class FileController {
         return ResponseEntity.ok("File uploaded successfully.");
     }
 
-    //TODO
     @GetMapping("/download/{id}")
     public ResponseEntity<ByteArrayResource> getFile(@PathVariable Long id, @RequestParam FileAccess.AccessType accessRequest, @AuthenticationPrincipal User user) {
-        if ((accessRequest.equals(FileAccess.AccessType.DOWNLOAD) && !fileService.canDownload(id, user))
-                || (!accessRequest.equals(FileAccess.AccessType.DOWNLOAD) && !fileService.hasAccess(id, user, accessRequest))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ByteArrayResource(new byte[0]));
+        if (!fileService.getFileById(id).getOwner().equals(user)) {
+            if ((accessRequest.equals(FileAccess.AccessType.DOWNLOAD) && !fileService.canDownload(id, user))
+                    || (!accessRequest.equals(FileAccess.AccessType.DOWNLOAD) && !fileService.hasAccess(id, user, accessRequest))) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ByteArrayResource(new byte[0]));
+            }
         }
-
         SecretKey secretKey = EncryptionUtils.getSecretKey();
         return fileService.findById(id)
                 .map(file -> {
@@ -96,27 +95,29 @@ public class FileController {
     public ResponseEntity<List<SharedFileDto>> showAllAccessibleFilesByUsername(@AuthenticationPrincipal User user) {
         List<SharedFileDto> response = this.fileService.findByAccess(user)
                 .stream()
-                .map(file -> {
-                    List<FileAccess.AccessType> accessTypes = fileAccessService.getAccessTypesForFileAndUser(file.getId(), user.getUsername());
-
-                    return new SharedFileDto(
-                            file.getId(),
-                            file.getFileName(),
-                            file.getFileType(),
-                            file.getOwner().getUsername(),
-                            accessTypes
-                    );
-                })
+                .map(file -> new SharedFileDto(
+                        file.getId(),
+                        file.getFileName(),
+                        file.getFileType(),
+                        file.getOwner().getUsername(),
+                        file.getLastModified().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                        this.fileAccessService.getAccessTypesForFileAndUser(file.getId(), user.getUsername())
+                ))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/created")
-    public ResponseEntity<List<FileDto>> showCreatedByUser(@AuthenticationPrincipal User user) {
-        List<FileDto> response = this.fileService.findByOwner(user)
+    public ResponseEntity<List<SharedFileDto>> showCreatedByUser(@AuthenticationPrincipal User user) {
+        List<SharedFileDto> response = this.fileService.findByOwner(user)
                 .stream()
-                .map(file -> new FileDto(file.getId(), file.getFileName(), file.getFileType(), file.getOwner().getUsername(), file.getLastModified().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
+                .map(file -> new SharedFileDto(
+                        file.getId(), file.getFileName(), file.getFileType(),
+                        file.getOwner().getUsername(),
+                        file.getLastModified().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                        this.fileAccessService.getAccessTypesForFileAndUser(file.getId(), user.getUsername())
+                ))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(response);

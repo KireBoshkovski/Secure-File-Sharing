@@ -8,6 +8,7 @@
       <th>File Name</th>
       <th>File Type</th>
       <th>Shared by</th>
+      <th>Last modified at</th>
       <th>Actions</th>
     </tr>
     </thead>
@@ -16,10 +17,11 @@
       <td>{{ file.name }}</td>
       <td>{{ file.type }}</td>
       <td>{{ file.owner }}</td>
+      <td>{{ file.lastAccess }}</td>
       <td>
-        <button *ngIf="file.accessTypes && file.accessTypes.includes('VIEW')" class="btn btn-success btn-sm" (click)="open(file.id)">View</button>
-        <button *ngIf="file.accessTypes && file.accessTypes.includes('DOWNLOAD')" class="btn btn-primary btn-sm" (click)="download(file.id, file.name)">Download</button>
-        <button *ngIf="file.accessTypes && file.accessTypes.includes('EDIT')" class="btn btn-warning btn-sm" (click)="openEditor(file.id)">Edit</button>
+        <button *ngIf="file.accessTypes && file.accessTypes.includes('VIEW')" class="btn btn-success btn-sm me-2" (click)="open(file.id)">View</button>
+        <button *ngIf="file.accessTypes && file.accessTypes.includes('DOWNLOAD')" class="btn btn-primary btn-sm me-2" (click)="download(file.id, file.name)">Download</button>
+        <button *ngIf="file.accessTypes && file.accessTypes.includes('EDIT')" class="btn btn-warning btn-sm me-2" (click)="openEditor(file.id)">Edit</button>
       </td>
     </tr>
     </tbody>

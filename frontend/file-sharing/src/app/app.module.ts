@@ -15,7 +15,7 @@ import { CreatedFilesComponent } from './components/created-files/created-files.
 import { HeaderComponent } from './components/header/header.component';
 import { UploadComponent } from './components/upload/upload.component';
 import { SharePopupComponent } from './components/share-popup/share-popup.component';
-import { EditTextFileComponent } from './edit-text-file/edit-text-file.component';
+import { EditTextFileComponent } from './components/edit-text-file/edit-text-file.component';
 
 @NgModule({
   declarations: [
