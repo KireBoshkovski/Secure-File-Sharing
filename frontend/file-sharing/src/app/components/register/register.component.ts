@@ -46,9 +46,9 @@ export class RegisterComponent {
           const errorMessage = err.error;
           if (typeof errorMessage === 'string') {
             if (errorMessage.includes('Username')) {
-              this.usernameError = errorMessage;
+              this.usernameError = "Username is already taken.";
             } else if (errorMessage.includes('Email')) {
-              this.emailError = errorMessage;
+              this.emailError = "Email is already taken.";
             }
           }
         } else {

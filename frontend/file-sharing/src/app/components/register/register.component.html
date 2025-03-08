@@ -15,7 +15,7 @@
         <small class="text-danger" *ngIf="emailError">{{ emailError }}</small>
       </p>
 
-        <p class="password-container">
+      <p class="password-container">
             <label for="password" class="sr-only">Password</label>
             <input [type]="showPassword ? 'text' : 'password'" id="password" class="form-control" placeholder="Password"
                 required minlength="4" maxlength="20" formControlName="password">

@@ -5,6 +5,9 @@ import mk.ukim.finki.ib.filesharing.DTO.LoginRequest;
 import mk.ukim.finki.ib.filesharing.DTO.RegisterRequest;
 import mk.ukim.finki.ib.filesharing.model.Token;
 import mk.ukim.finki.ib.filesharing.model.User;
+import mk.ukim.finki.ib.filesharing.model.exceptions.EmailAlreadyExistsException;
+import mk.ukim.finki.ib.filesharing.model.exceptions.UserAlreadyExistsException;
+import mk.ukim.finki.ib.filesharing.model.exceptions.UsernameAlreadyExistsException;
 import mk.ukim.finki.ib.filesharing.repository.UserRepository;
 import mk.ukim.finki.ib.filesharing.service.AuthService;
 import mk.ukim.finki.ib.filesharing.service.EmailService;
@@ -50,22 +53,29 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Optional<User> sendConfirmationEmail(RegisterRequest request) {
-        if (validateUser(request)) {
-            User user = this.userRepository.save(new User(request.getUsername(), request.getEmail(),
-                    this.passwordEncoder.encode(request.getPassword())));
+        validateUser(request);
 
-            String token = this.tokenService.generateToken(user);
+        User user = this.userRepository.save(new User(
+                request.getUsername(),
+                request.getEmail(),
+                this.passwordEncoder.encode(request.getPassword()))
+        );
 
-            this.emailService.sendConfirmationCode(request.getEmail(), token);
+        String token = this.tokenService.generateToken(user);
+        this.emailService.sendConfirmationCode(request.getEmail(), token);
 
-            return Optional.of(user);
-        }
-        return Optional.empty();
+        return Optional.of(user);
     }
 
-    private boolean validateUser(RegisterRequest request) {
-        return (request.getUsername() != null && !request.getUsername().isEmpty() && request.getPassword() != null && !request.getPassword().isEmpty())
-                && (this.userRepository.findByUsername(request.getUsername()).isEmpty() || !this.userRepository.findByUsername(request.getUsername()).get().isVerified())
-                && (this.userRepository.findByEmail(request.getEmail()).isEmpty() || !this.userRepository.findByEmail(request.getEmail()).get().isVerified());
+    private void validateUser(RegisterRequest request) {
+        Optional<User> existingUserByUsername = this.userRepository.findByUsername(request.getUsername());
+        if (existingUserByUsername.isPresent() && existingUserByUsername.get().isVerified()) {
+            throw new UsernameAlreadyExistsException();
+        }
+
+        Optional<User> existingUserByEmail = this.userRepository.findByEmail(request.getEmail());
+        if (existingUserByEmail.isPresent() && existingUserByEmail.get().isVerified()) {
+            throw new EmailAlreadyExistsException();
+        }
     }
 }

@@ -46,7 +46,7 @@ export class AuthService {
 
     return this.http.post(AUTH_API + '/register', null, {
       ...httpOptions,
-      params: params, 
+      params: params,
     })
   }
 
