@@ -6,12 +6,16 @@
             <input type="text" id="username" class="form-control" placeholder="Username" required="" autofocus=""
                 formControlName="username">
         </p>
-        <p>
+        <p class="password-container">
             <label for="password" class="sr-only">Password</label>
-            <input type="password" id="password" class="form-control" placeholder="Password" required="" minlength="4"
-                maxlength="20" formControlName="password">
+            <input [type]="showPassword ? 'text' : 'password'" id="password" class="form-control" placeholder="Password"
+                required="" minlength="4" maxlength="20" formControlName="password">
+            <button type="button" id="toggle-password" (click)="toggleShowPassword()">
+                <i>{{ showPassword ? 'Hide' : 'Show' }}</i>
+            </button>
         </p>
         <button id="submit" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-        <a routerLink="/register" class="btn btn-block btn-light btn-transparent">Don't have an account? Register here!</a>
+        <a routerLink="/register" class="btn btn-block btn-light btn-transparent">Don't have an account? Register
+            here!</a>
     </form>
 </div>

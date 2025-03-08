@@ -11,14 +11,15 @@ import { Router } from '@angular/router';
 })
 export class RegisterComponent {
   registerForm: FormGroup;
+  showPassword: boolean = false;
 
   constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router) {
     this.registerForm = this.formBuilder.group({
-      username: [''],
+      username: [''], 
       email: [''],
       password: ['']
     })
-   }
+  }
 
   onSubmit() {
     this.authService.register(
@@ -34,5 +35,9 @@ export class RegisterComponent {
         console.log(err.error);
       }
     });
+  }
+
+  toggleShowPassword() {
+    this.showPassword = !this.showPassword;
   }
 }
