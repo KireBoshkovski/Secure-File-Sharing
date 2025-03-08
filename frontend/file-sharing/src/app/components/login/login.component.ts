@@ -26,7 +26,6 @@ export class LoginComponent {
       this.loginForm.get('password')?.value
     ).subscribe({
       next: () => {
-        alert('Login successful');
         this.router.navigate(['/home']);
       },
       error: (err) => {
