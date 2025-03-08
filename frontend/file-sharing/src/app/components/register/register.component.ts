@@ -11,16 +11,26 @@ import { Router } from '@angular/router';
 })
 export class RegisterComponent {
   registerForm: FormGroup;
+  usernameError: string = '';
+  emailError: string = '';
 
   constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router) {
     this.registerForm = this.formBuilder.group({
       username: [''],
       email: [''],
       password: ['']
-    })
-   }
+    });
+
+    this.registerForm.valueChanges.subscribe(() => {
+      this.usernameError = '';
+      this.emailError = '';
+    });
+  }
 
   onSubmit() {
+    this.usernameError = '';
+    this.emailError = '';
+
     this.authService.register(
       this.registerForm.get('username')?.value,
       this.registerForm.get('email')?.value,
@@ -31,7 +41,18 @@ export class RegisterComponent {
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        console.log(err.error);
+        if (err.status === 400) {
+          const errorMessage = err.error;
+          if (typeof errorMessage === 'string') {
+            if (errorMessage.includes('Username')) {
+              this.usernameError = errorMessage;
+            } else if (errorMessage.includes('Email')) {
+              this.emailError = errorMessage;
+            }
+          }
+        } else {
+          console.log(err.error);
+        }
       }
     });
   }

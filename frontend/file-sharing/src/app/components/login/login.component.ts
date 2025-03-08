@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   loginForm: FormGroup;
 
-  constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router) { 
+  constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router) {
     this.loginForm = this.formBuilder.group({
       username: [''],
       password: ['']
@@ -25,11 +25,10 @@ export class LoginComponent {
       this.loginForm.get('password')?.value
     ).subscribe({
       next: () => {
-        alert('Login successful');
         this.router.navigate(['/home']);
       },
       error: (err) => {
-        console.log(err.error); 
+        console.log(err.error);
       }
     });
   }
