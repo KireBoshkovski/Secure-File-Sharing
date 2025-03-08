@@ -12,6 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/auth")
 @AllArgsConstructor
@@ -19,11 +21,16 @@ public class AuthController {
     private final AuthService authService;
     private final JWTService jwtService;
 
-    @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
-        User registeredUser = this.authService.registerUser(request);
+    @PostMapping("/verify")
+    public ResponseEntity<User> verify(@RequestBody RegisterRequest request) {
+        Optional<User> registeredUser = this.authService.sendConfirmationEmail(request);
+        return registeredUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.badRequest().body(null));
+    }
 
-        return ResponseEntity.ok(registeredUser);
+    @PostMapping("/register")
+    public ResponseEntity<User> register(@RequestParam String token) {
+        Optional<User> registeredUser = this.authService.registerUser(token);
+        return registeredUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.badRequest().body(null));
     }
 
     @PostMapping("/login")

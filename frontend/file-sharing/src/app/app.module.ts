@@ -16,6 +16,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { UploadComponent } from './components/upload/upload.component';
 import { SharePopupComponent } from './components/share-popup/share-popup.component';
 import { EditTextFileComponent } from './components/edit-text-file/edit-text-file.component';
+import { VerifyUserComponent } from './components/verify-user/verify-user.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { EditTextFileComponent } from './components/edit-text-file/edit-text-fil
     HeaderComponent,
     SharePopupComponent,
     EditTextFileComponent,
+    VerifyUserComponent
   ],
   imports: [
     BrowserModule,

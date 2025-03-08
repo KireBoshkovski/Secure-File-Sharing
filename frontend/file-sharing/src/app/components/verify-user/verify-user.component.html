@@ -1,0 +1,8 @@
+<form (ngSubmit)="onSubmit()" class="mt-4 p-4 border rounded shadow-sm bg-light">
+    <div class="mb-3">
+        <label for="code" class="form-label fw-bold">Enter your verification code:</label>
+        <input [(ngModel)]="code" type="text" id="code" name="code" class="form-control" required>
+    </div>
+
+    <button class="btn btn-primary w-100 py-2 fw-bold" type="submit">Verify</button>
+</form>

@@ -4,8 +4,10 @@ import mk.ukim.finki.ib.filesharing.DTO.LoginRequest;
 import mk.ukim.finki.ib.filesharing.DTO.RegisterRequest;
 import mk.ukim.finki.ib.filesharing.model.User;
 
-public interface AuthService {
-    User registerUser(RegisterRequest request);
+import java.util.Optional;
 
+public interface AuthService {
+    Optional<User> registerUser(String token);
+    Optional<User> sendConfirmationEmail(RegisterRequest request);
     User authenticate(LoginRequest request);
 }

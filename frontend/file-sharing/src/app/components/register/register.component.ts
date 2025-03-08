@@ -22,14 +22,14 @@ export class RegisterComponent {
   }
 
   onSubmit() {
-    this.authService.register(
+    this.authService.verify(
       this.registerForm.get('username')?.value,
       this.registerForm.get('email')?.value,
       this.registerForm.get('password')?.value
     ).subscribe({
       next: () => {
-        alert('Registration successful! Redirecting to login...');
-        this.router.navigate(['/login']);
+        alert('Please verify your email address...');
+        this.router.navigate(['/verify-email']);
       },
       error: (err) => {
         console.log(err.error);

@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, Observable, tap } from 'rxjs';
+import { HttpParams } from '@angular/common/http';
 
 const AUTH_API = 'https://localhost:8080/api/auth'
 const httpOptions = {
@@ -32,12 +33,21 @@ export class AuthService {
       );
   }
 
-  register(username: string, email: string, password: string) {
-    return this.http.post(AUTH_API + '/register', {
+  verify(username: string, email: string, password: string) {
+    return this.http.post(AUTH_API + '/verify', {
       username: username,
       email: email,
       password: password
     }, httpOptions)
+  }
+
+  register(token: string) {
+    const params = new HttpParams().set('token', token);
+
+    return this.http.post(AUTH_API + '/register', null, {
+      ...httpOptions,
+      params: params, 
+    })
   }
 
   logout() {
