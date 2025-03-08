@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import mk.ukim.finki.ib.filesharing.model.FileAccess;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data

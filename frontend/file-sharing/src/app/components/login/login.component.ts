@@ -13,14 +13,22 @@ export class LoginComponent {
   loginForm: FormGroup;
   showPassword: boolean = false;
 
+  error: string = '';
+
   constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router) {
     this.loginForm = this.formBuilder.group({
       username: [''],
       password: ['']
     });
+
+    this.loginForm.valueChanges.subscribe(() => {
+      this.error = '';
+    });
   }
 
   onSubmit() {
+    this.error = '';
+
     this.authService.login(
       this.loginForm.get('username')?.value,
       this.loginForm.get('password')?.value
@@ -29,7 +37,7 @@ export class LoginComponent {
         this.router.navigate(['/home']);
       },
       error: (err) => {
-        console.log(err.error);
+        this.error = err.error;
       }
     });
   }

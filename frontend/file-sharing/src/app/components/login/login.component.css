@@ -28,3 +28,9 @@
     font-size: 0.9em;
     color: #666;
 }
+
+.text-danger {
+    display: block;
+    margin-bottom: 2%;
+    margin-top: -1%;
+}

@@ -1,7 +1,5 @@
 package mk.ukim.finki.ib.filesharing.encryption;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;

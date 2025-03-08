@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FileAccessRepository extends JpaRepository <FileAccess, Long>{
+public interface FileAccessRepository extends JpaRepository<FileAccess, Long> {
     List<FileAccess> findByUploadedFile_IdAndUser_Username(Long fileId, String userId);
 }

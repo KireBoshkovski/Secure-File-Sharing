@@ -3,7 +3,6 @@ package mk.ukim.finki.ib.filesharing.service.impl;
 import lombok.AllArgsConstructor;
 import mk.ukim.finki.ib.filesharing.model.FileAccess;
 import mk.ukim.finki.ib.filesharing.repository.FileAccessRepository;
-import mk.ukim.finki.ib.filesharing.repository.FileRepository;
 import mk.ukim.finki.ib.filesharing.service.FileAccessService;
 import org.springframework.stereotype.Service;
 

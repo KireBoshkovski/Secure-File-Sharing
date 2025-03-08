@@ -6,7 +6,6 @@ import mk.ukim.finki.ib.filesharing.DTO.RegisterRequest;
 import mk.ukim.finki.ib.filesharing.model.Token;
 import mk.ukim.finki.ib.filesharing.model.User;
 import mk.ukim.finki.ib.filesharing.model.exceptions.EmailAlreadyExistsException;
-import mk.ukim.finki.ib.filesharing.model.exceptions.UserAlreadyExistsException;
 import mk.ukim.finki.ib.filesharing.model.exceptions.UsernameAlreadyExistsException;
 import mk.ukim.finki.ib.filesharing.repository.UserRepository;
 import mk.ukim.finki.ib.filesharing.service.AuthService;
@@ -14,7 +13,6 @@ import mk.ukim.finki.ib.filesharing.service.EmailService;
 import mk.ukim.finki.ib.filesharing.service.TokenService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,12 +29,20 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public User authenticate(LoginRequest request) {
-        this.authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
+        return (User) this.authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()))
+                .getPrincipal();
+    }
 
-        return this.userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException(String.format("User with username %s is not found!", request.getUsername())));
+    @Override
+    public boolean sendOTP(LoginRequest request) {
+        Optional<User> userOptional = this.userRepository.findByUsername(request.getUsername());
+        if (userOptional.isPresent()) {
+            String token = this.tokenService.generateToken(userOptional.get());
+
+            this.emailService.send2FACode(userOptional.get().getEmail(), token);
+        }
+        return false;
     }
 
     @Override
@@ -45,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
         if (tokenOptional.isPresent()) {
             User user = tokenOptional.get().getUser();
             user.setVerified(true);
-            this.tokenService.removeToken(tokenOptional.get());
+            this.tokenService.removeTokens(user);
             return Optional.of(this.userRepository.save(user));
         }
         return Optional.empty();

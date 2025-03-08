@@ -6,9 +6,9 @@ import mk.ukim.finki.ib.filesharing.model.User;
 import java.util.Optional;
 
 public interface TokenService {
-     String generateToken(User user);
+    String generateToken(User user);
 
-     void removeToken(Token token);
+    void removeTokens(User user);
 
-     Optional<Token> findToken(String token);
+    Optional<Token> findToken(String token);
 }

@@ -8,6 +8,10 @@ import java.util.Optional;
 
 public interface AuthService {
     Optional<User> registerUser(String token);
+
     Optional<User> sendConfirmationEmail(RegisterRequest request);
+
     User authenticate(LoginRequest request);
+
+    boolean sendOTP(LoginRequest request);
 }
