@@ -11,12 +11,13 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent {
   loginForm: FormGroup;
+  showPassword: boolean = false;
 
   constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router) {
     this.loginForm = this.formBuilder.group({
       username: [''],
       password: ['']
-  });
+    });
   }
 
   onSubmit() {
@@ -31,5 +32,9 @@ export class LoginComponent {
         console.log(err.error);
       }
     });
+  }
+
+  toggleShowPassword() {
+    this.showPassword = !this.showPassword;
   }
 }

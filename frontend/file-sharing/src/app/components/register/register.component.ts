@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 })
 export class RegisterComponent {
   registerForm: FormGroup;
+  showPassword: boolean = false;
   usernameError: string = '';
   emailError: string = '';
 
@@ -55,5 +56,9 @@ export class RegisterComponent {
         }
       }
     });
+  }
+
+  toggleShowPassword() {
+    this.showPassword = !this.showPassword;
   }
 }
