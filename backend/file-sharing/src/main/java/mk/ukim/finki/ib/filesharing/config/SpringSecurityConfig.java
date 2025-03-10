@@ -34,7 +34,7 @@ public class SpringSecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(a -> a.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(a -> a.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(authenticationProvider)
                 .logout((logout) -> logout

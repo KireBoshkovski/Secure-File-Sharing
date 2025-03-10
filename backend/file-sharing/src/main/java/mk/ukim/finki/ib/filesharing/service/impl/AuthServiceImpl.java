@@ -28,21 +28,25 @@ public class AuthServiceImpl implements AuthService {
     private final TokenService tokenService;
 
     @Override
-    public User authenticate(LoginRequest request) {
-        return (User) this.authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()))
-                .getPrincipal();
+    public void authenticate(LoginRequest request) {
+        this.authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
     }
 
     @Override
-    public boolean sendOTP(LoginRequest request) {
+    public void sendOTP(LoginRequest request) {
         Optional<User> userOptional = this.userRepository.findByUsername(request.getUsername());
         if (userOptional.isPresent()) {
             String token = this.tokenService.generateToken(userOptional.get());
 
             this.emailService.send2FACode(userOptional.get().getEmail(), token);
         }
-        return false;
+    }
+
+    @Override
+    public User findUserByToken(String token) {
+        Optional<Token> tokenOptional = this.tokenService.findToken(token);
+        return tokenOptional.map(Token::getUser).orElse(null);
     }
 
     @Override
@@ -51,7 +55,6 @@ public class AuthServiceImpl implements AuthService {
         if (tokenOptional.isPresent()) {
             User user = tokenOptional.get().getUser();
             user.setVerified(true);
-            this.tokenService.removeTokens(user);
             return Optional.of(this.userRepository.save(user));
         }
         return Optional.empty();

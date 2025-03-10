@@ -10,6 +10,7 @@ import { SharedFilesComponent } from './components/shared-files/shared-files.com
 import { UploadComponent } from './components/upload/upload.component';
 import { EditTextFileComponent } from './components/edit-text-file/edit-text-file.component';
 import { VerifyUserComponent } from './components/verify-user/verify-user.component';
+import { VerifyOtpComponent } from './components/verify-otp/verify-otp.component';
 
 const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -17,10 +18,11 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'verify-email', component: VerifyUserComponent },
+  { path: 'verify-otp', component: VerifyOtpComponent},
   { path: 'created-files', component: CreatedFilesComponent, canActivate: [AuthGuard] },
   { path: 'shared-files', component: SharedFilesComponent, canActivate: [AuthGuard] },
   { path: 'upload-file', component: UploadComponent, canActivate: [AuthGuard] },
-  { path: 'edit-text-file', component: EditTextFileComponent, canActivate: [AuthGuard] }
+  { path: 'edit-text-file', component: EditTextFileComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({

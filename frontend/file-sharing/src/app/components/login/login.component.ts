@@ -33,8 +33,9 @@ export class LoginComponent {
       this.loginForm.get('username')?.value,
       this.loginForm.get('password')?.value
     ).subscribe({
-      next: () => {
-        this.router.navigate(['/home']);
+      next: (response) => {
+        console.log(response);
+        this.router.navigate(['/verify-otp']);
       },
       error: (err) => {
         this.error = err.error;

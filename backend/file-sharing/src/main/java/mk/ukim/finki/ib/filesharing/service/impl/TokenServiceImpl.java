@@ -18,20 +18,17 @@ import java.util.Optional;
 public class TokenServiceImpl implements TokenService {
     private final TokenRepository tokenRepository;
 
+    @Transactional
     @Override
     public String generateToken(User user) {
+        this.tokenRepository.deleteByUser(user); //clear old tokens
+
         SecureRandom random = new SecureRandom();
         int code = 100000 + random.nextInt(900000);
 
         String token = String.valueOf(code);
         this.tokenRepository.save(new Token(token, user, LocalDateTime.now().plusMinutes(30)));
         return token;
-    }
-
-    @Transactional
-    @Override
-    public void removeTokens(User user) {
-        this.tokenRepository.deleteByUser(user);
     }
 
     @Override

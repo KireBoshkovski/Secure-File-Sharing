@@ -1,0 +1,13 @@
+<div class="auth-container">
+    <h3>Two-Factor Authentication</h3>
+    <p>{{username}}, please enter your token.</p>
+    <form (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label for="code" class="form-label">Enter your 2FA token:</label>
+            <input type="text" id="code" name="code" class="form-control text-center" [(ngModel)]="otp" required>
+        </div>
+        <button class="btn btn-lg btn-primary w-100" type="submit">Authenticate</button>
+
+        <small class="text-danger" *ngIf="error">{{ error }}</small>
+    </form>
+</div>

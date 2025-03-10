@@ -7,6 +7,7 @@ import mk.ukim.finki.ib.filesharing.DTO.RegisterRequest;
 import mk.ukim.finki.ib.filesharing.model.User;
 import mk.ukim.finki.ib.filesharing.service.AuthService;
 import mk.ukim.finki.ib.filesharing.service.JWTService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,14 +35,25 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginRequest request) {
-        User authenticatedUser = this.authService.authenticate(request);
+    public ResponseEntity<String> authenticate(@RequestBody LoginRequest request) {
+        this.authService.authenticate(request);
+        this.authService.sendOTP(request);
 
-        String jwtToken = jwtService.generateToken(authenticatedUser);
+        return ResponseEntity.ok().build();
+    }
 
-        LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setToken(jwtToken);
-        loginResponse.setExpiresIn(jwtService.getExpirationTime());
+    @PostMapping("/verify-otp")
+    public ResponseEntity<LoginResponse> verifyOTP(@RequestParam String otp, @RequestParam String username) {
+        User user = this.authService.findUserByToken(otp);
+
+        if (!user.getUsername().equals(username)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        String jwtToken = jwtService.generateToken(user);
+
+        LoginResponse loginResponse = new LoginResponse(user.getUsername(), jwtToken, this.jwtService.getExpirationTime());
+
         return ResponseEntity.ok(loginResponse);
     }
 

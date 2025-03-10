@@ -17,6 +17,7 @@ import { UploadComponent } from './components/upload/upload.component';
 import { SharePopupComponent } from './components/share-popup/share-popup.component';
 import { EditTextFileComponent } from './components/edit-text-file/edit-text-file.component';
 import { VerifyUserComponent } from './components/verify-user/verify-user.component';
+import { VerifyOtpComponent } from './components/verify-otp/verify-otp.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { VerifyUserComponent } from './components/verify-user/verify-user.compon
     HeaderComponent,
     SharePopupComponent,
     EditTextFileComponent,
-    VerifyUserComponent
+    VerifyUserComponent,
+    VerifyOtpComponent
   ],
   imports: [
     BrowserModule,

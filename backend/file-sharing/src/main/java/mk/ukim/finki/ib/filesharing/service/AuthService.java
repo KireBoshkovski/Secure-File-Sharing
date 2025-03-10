@@ -11,7 +11,9 @@ public interface AuthService {
 
     Optional<User> sendConfirmationEmail(RegisterRequest request);
 
-    User authenticate(LoginRequest request);
+    void authenticate(LoginRequest request);
 
-    boolean sendOTP(LoginRequest request);
+    void sendOTP(LoginRequest request);
+
+    User findUserByToken(String token);
 }

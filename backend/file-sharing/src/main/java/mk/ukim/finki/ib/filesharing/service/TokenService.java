@@ -8,7 +8,5 @@ import java.util.Optional;
 public interface TokenService {
     String generateToken(User user);
 
-    void removeTokens(User user);
-
     Optional<Token> findToken(String token);
 }

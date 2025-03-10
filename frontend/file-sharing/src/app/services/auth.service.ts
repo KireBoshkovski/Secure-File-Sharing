@@ -19,14 +19,30 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) { }
 
   login(username: string, password: string): Observable<any> {
-    return this.http.post<{ token: string, expiresIn: number }>(
-      AUTH_API + '/login',
+    localStorage.setItem('username', username);
+
+    return this.http.post(AUTH_API + '/login',
       { username: username, password: password }, { headers: { 'Content-Type': 'application/json' } })
+
+  }
+
+  sendotp(otp: string, username: string): Observable<any> {
+    const params = new HttpParams()
+      .set('otp', otp)
+      .set('username', username);
+
+    return this.http.post<{ username: string, token: string, expiresIn: number }>(
+      AUTH_API + '/verify-otp',
+      null,
+      {
+        params: params,
+        headers: { 'Content-Type': 'application/json' },
+        responseType: 'json'
+      })
       .pipe(
         tap((response) => {
           const expirationTime = Date.now() + response.expiresIn; // Calculate expiration time
 
-          localStorage.setItem('username', username);
           localStorage.setItem('token', response.token);
           localStorage.setItem('expirationTime', expirationTime.toString());
         })
