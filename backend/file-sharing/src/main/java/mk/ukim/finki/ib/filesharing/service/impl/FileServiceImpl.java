@@ -149,7 +149,6 @@ public class FileServiceImpl implements FileService {
                 .orElseThrow(() -> new RuntimeException("File not found"));
     }
 
-    // Save the converted file as a PDF
     public void saveFileAsPdf(Long fileId, byte[] pdfData, User user) throws UnauthorizedAccessException {
         UploadedFile uploadedFile = fileRepository.findById(fileId)
                 .orElseThrow(() -> new RuntimeException("File not found"));
@@ -159,7 +158,7 @@ public class FileServiceImpl implements FileService {
         }
 
         uploadedFile.setData(pdfData);
-        uploadedFile.setFileType("application/pdf");  // Change the file type to PDF
+        uploadedFile.setFileType("application/pdf");
         uploadedFile.setLastModified(LocalDateTime.now());
 
         fileRepository.save(uploadedFile);

@@ -5,6 +5,7 @@ import mk.ukim.finki.ib.filesharing.DTO.LoginRequest;
 import mk.ukim.finki.ib.filesharing.DTO.LoginResponse;
 import mk.ukim.finki.ib.filesharing.DTO.RegisterRequest;
 import mk.ukim.finki.ib.filesharing.model.User;
+import mk.ukim.finki.ib.filesharing.model.exceptions.WeakPasswordException;
 import mk.ukim.finki.ib.filesharing.service.AuthService;
 import mk.ukim.finki.ib.filesharing.service.JWTService;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,10 @@ public class AuthController {
     private final JWTService jwtService;
 
     @PostMapping("/verify")
-    public ResponseEntity<User> verify(@RequestBody RegisterRequest request) {
+    public ResponseEntity<User> verify(@RequestBody RegisterRequest request) throws WeakPasswordException {
+        if (!isValidPassword(request.getPassword())) {
+            throw new WeakPasswordException();
+        }
         Optional<User> registeredUser = this.authService.sendConfirmationEmail(request);
         return registeredUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.badRequest().body(null));
     }
@@ -65,4 +69,9 @@ public class AuthController {
 
         return ResponseEntity.ok(currentUser);
     }
+
+    public static boolean isValidPassword(String password) {
+        return password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$");
+    }
+
 }

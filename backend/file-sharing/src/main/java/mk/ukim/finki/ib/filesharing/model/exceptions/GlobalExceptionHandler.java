@@ -31,4 +31,10 @@ public class GlobalExceptionHandler {
         errorResponse.add(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
+    @ExceptionHandler(WeakPasswordException.class)
+    public ResponseEntity<List<String>> handleWeakPassword(WeakPasswordException ex) {
+        List<String> errorResponse = new ArrayList<>();
+        errorResponse.add(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
 }

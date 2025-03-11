@@ -14,6 +14,7 @@ export class RegisterComponent {
   showPassword: boolean = false;
   usernameError: string = '';
   emailError: string = '';
+  passwordError: string = '';
 
   constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router) {
     this.registerForm = this.formBuilder.group({
@@ -25,12 +26,14 @@ export class RegisterComponent {
     this.registerForm.valueChanges.subscribe(() => {
       this.usernameError = '';
       this.emailError = '';
+      this.passwordError = '';
     });
   }
 
   onSubmit() {
     this.usernameError = '';
     this.emailError = '';
+    this.passwordError = '';
 
     this.authService.verify(
       this.registerForm.get('username')?.value,
@@ -49,6 +52,8 @@ export class RegisterComponent {
               this.usernameError = "Username is already taken.";
             } else if (errorMessage.includes('Email')) {
               this.emailError = "Email is already taken.";
+            }else if (errorMessage.includes('Password')) {
+              this.passwordError = "Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number, and one special character.";
             }
           }
         } else {

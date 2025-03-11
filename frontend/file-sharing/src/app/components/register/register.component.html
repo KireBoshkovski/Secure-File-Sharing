@@ -19,7 +19,8 @@
             <label for="password" class="sr-only">Password</label>
             <input [type]="showPassword ? 'text' : 'password'" id="password" class="form-control" placeholder="Password"
                 required minlength="4" maxlength="20" formControlName="password">
-            <button type="button" id="toggle-password" (click)="toggleShowPassword()">
+        <small class="text-danger" *ngIf="passwordError">{{ passwordError }}</small>
+        <button type="button" id="toggle-password" (click)="toggleShowPassword()">
                 <i>{{ showPassword ? 'Hide' : 'Show' }}</i>
             </button>
         </p>
