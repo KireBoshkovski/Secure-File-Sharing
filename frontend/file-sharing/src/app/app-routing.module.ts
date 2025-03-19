@@ -22,7 +22,7 @@ const routes: Routes = [
   { path: 'created-files', component: CreatedFilesComponent, canActivate: [AuthGuard] },
   { path: 'shared-files', component: SharedFilesComponent, canActivate: [AuthGuard] },
   { path: 'upload-file', component: UploadComponent, canActivate: [AuthGuard] },
-  { path: 'edit-text-file', component: EditTextFileComponent, canActivate: [AuthGuard] },
+  { path: 'edit', component: EditTextFileComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({

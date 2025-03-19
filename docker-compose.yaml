@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+    networks:
+      - network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/file-sharing
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: mypassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+      EMAIL_USERNAME: authenticateyouremail@gmail.com
+      EMAIL_PASSWORD: kkla rekr sdom jppb
+      JWT_SECRET: 321376eds3567c1c0ea519f8fc058a80fcd04a7420f8e8bcd0a7567c272e007b
+      ENCRYPTION_KEY: wOksO08zF/jPNP9A0gr0G2Mj6b0hBGsXM2lWx4lN0nI
+    ports:
+      - "8080:8080"
+    networks:
+      - network
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: file-sharing
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d file-sharing" ]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  pg_data:
+
+
+networks:
+  network:

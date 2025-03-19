@@ -47,7 +47,7 @@ export class SharedFilesComponent implements OnInit {
 
   openEditor(fileId: number) {
     const url = this.router.serializeUrl(
-      this.router.createUrlTree(['/edit-text-file'], {
+      this.router.createUrlTree(['/edit'], {
         queryParams: { id: fileId },
       })
     );
