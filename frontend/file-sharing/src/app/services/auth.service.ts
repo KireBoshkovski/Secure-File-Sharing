@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { catchError, Observable, tap } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
 
-const AUTH_API = 'https://localhost:8080/api/auth'
+const AUTH_API = '/api/auth'
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
   withCredentials: true,

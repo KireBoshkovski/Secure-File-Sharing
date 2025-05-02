@@ -2,47 +2,45 @@ version: '3.8'
 
 services:
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    build: ./frontend
+    container_name: "file-sharing-angular-frontend"
     depends_on:
       - backend
-    ports:
-      - "4200:80"
+#    ports:
+#      - "4200:4200"
     networks:
       - network
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    build: ./backend
+    container_name: "file-sharing-spring-backend"
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/file-sharing
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: mypassword
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    env_file:
+      - .env
+#    ports:
+#      - "8080:8080"
+    networks:
+      - network
 
-      EMAIL_USERNAME: authenticateyouremail@gmail.com
-      EMAIL_PASSWORD: kkla rekr sdom jppb
-      JWT_SECRET: 321376eds3567c1c0ea519f8fc058a80fcd04a7420f8e8bcd0a7567c272e007b
-      ENCRYPTION_KEY: wOksO08zF/jPNP9A0gr0G2Mj6b0hBGsXM2lWx4lN0nI
+  proxy:
+    build: ./nginx
+    container_name: "file-sharing-nginx-proxy"
+    restart: always
     ports:
-      - "8080:8080"
+      - "80:80"
     networks:
       - network
 
   db:
     image: postgres:15
+    container_name: "file-sharing-postgres-db"
     restart: always
-    environment:
-      POSTGRES_DB: file-sharing
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mypassword
-    ports:
-      - "5432:5432"
+    env_file:
+      - .env
+#    ports:
+#      - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     networks:
@@ -55,7 +53,6 @@ services:
 
 volumes:
   pg_data:
-
 
 networks:
   network:

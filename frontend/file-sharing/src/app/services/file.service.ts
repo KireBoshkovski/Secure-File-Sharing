@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable } from 'rxjs';
 
-const FILE_API = 'https://localhost:8080/api/files';
+const FILE_API = '/api/files';
 
 @Injectable({
   providedIn: 'root',
