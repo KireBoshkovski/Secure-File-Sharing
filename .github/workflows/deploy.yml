@@ -1,42 +1,140 @@
-name: Deploy Fullstack App to DockerHub
+name: Deploy file-sharing app to AWS EC2
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches:
+      - 'master'
 
 jobs:
-  run-lint:
+  build:
     runs-on: ubuntu-latest
+    outputs:
+      branch_name: ${{ steps.vars.outputs.branch_name }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set branch name
+        id: vars
+        run: echo "branch_name=$(echo ${{ github.ref_name }} | tr '/' '-')" >> "$GITHUB_OUTPUT"
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and push backend image
+        run: |
+          docker build --pull -t ${{ secrets.DOCKER_USERNAME }}/file-sharing-backend:${{ steps.vars.outputs.branch_name }}-latest ./backend
+          docker push ${{ secrets.DOCKER_USERNAME }}/file-sharing-backend:${{ steps.vars.outputs.branch_name }}-latest
+
+      - name: Build and push frontend image
+        run: |
+          docker build --pull -t ${{ secrets.DOCKER_USERNAME }}/file-sharing-frontend:${{ steps.vars.outputs.branch_name }}-latest ./frontend
+          docker push ${{ secrets.DOCKER_USERNAME }}/file-sharing-frontend:${{ steps.vars.outputs.branch_name }}-latest
+
+      - name: Build and push nginx image
+        run: |
+          docker build --pull -t ${{ secrets.DOCKER_USERNAME }}/file-sharing-nginx:${{ steps.vars.outputs.branch_name }}-latest ./nginx
+          docker push ${{ secrets.DOCKER_USERNAME }}/file-sharing-nginx:${{ steps.vars.outputs.branch_name }}-latest
+
+  aws_instance_prep:
+    runs-on: ubuntu-latest
+    needs: build
+    outputs:
+      instance_id: ${{ steps.set_env.outputs.instance_id }}
+      public_ip: ${{ steps.get_ip.outputs.public_ip }}
+    steps:
+      - name: Set branch name
+        id: vars
+        run: echo "branch_name=${{ needs.build.outputs.branch_name }}" >> "$GITHUB_ENV"
+
+      - name: Configure AWS Credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region ${{ secrets.AWS_REGION }}
+
+      - name: Check for existing EC2 instance
+        id: check_instance
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=kiii-${{ env.branch_name }}" "Name=instance-state-name,Values=running" \
+            --query "Reservations[0].Instances[0].InstanceId" \
+            --output text)
+          
+          if [[ "$INSTANCE_ID" == "None" ]]; then
+            echo "EXISTING_INSTANCE=false" >> $GITHUB_ENV
+          else
+            echo "EXISTING_INSTANCE=true" >> $GITHUB_ENV
+            echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+          fi
+
+      - name: Launch EC2 Instance if needed
+        if: env.EXISTING_INSTANCE == 'false'
+        run: |
+          INSTANCE_ID=$(aws ec2 run-instances \
+            --launch-template LaunchTemplateId=${{ secrets.EC2_LAUNCH_TEMPLATE_ID }} \
+            --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=kiii-${{ env.branch_name }} }]" \
+            --query 'Instances[0].InstanceId' \
+            --output text)
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+
+      - name: Wait for instance to be ready
+        run: |
+          INSTANCE_ID=${{ env.INSTANCE_ID }}
+          echo "Waiting for EC2 ($INSTANCE_ID) to be ready..."
+          aws ec2 wait instance-status-ok --instance-ids $INSTANCE_ID
+          echo "Instance is ready."
+
+      - name: Get EC2 Public IP
+        id: get_ip
+        run: |
+          PUBLIC_IP=$(aws ec2 describe-instances \
+            --instance-ids ${{ env.INSTANCE_ID }} \
+            --query "Reservations[0].Instances[0].PublicIpAddress" \
+            --output text)
+          echo "public_ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
+
+      - name: Set instance ID output
+        id: set_env
+        run: echo "instance_id=${{ env.INSTANCE_ID }}" >> $GITHUB_OUTPUT
+
+      - name: Print Public IP to Console
+        run: |
+          echo "============================================"
+          echo "✅ EC2 Instance is ready!"
+          echo "🌍 Public IP Address: http://${{ steps.get_ip.outputs.public_ip }}"
+          echo "============================================"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [ build, aws_instance_prep ]
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          # Full git history is needed to get a proper list of changed files within `super-linter`
-          fetch-depth: 0
+        uses: actions/checkout@v3
 
-      - name: Lint Code Base
-        uses: github/super-linter@v4
+      - name: Setup SSH Key
+        run: |
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ec2_key.pem
+          chmod 600 ec2_key.pem
+
+      - name: Copy docker-compose.yaml to EC2
+        run: |
+          scp -i ec2_key.pem -o StrictHostKeyChecking=no docker-compose.yaml ec2-user@${{ needs.aws_instance_prep.outputs.public_ip }}:/home/ec2-user/docker-compose.yaml
+
+      - name: Deploy with docker-compose
         env:
-          VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: "master"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  docker-build-and-push:
-    needs: run-lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags: kireboshkovski/file-sharing:github-latest
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
+        run: |
+          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ needs.aws_instance_prep.outputs.public_ip }} "
+            echo 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD}' > /home/ec2-user/.env &&
+            echo 'POSTGRES_USER=${POSTGRES_USER}' >> /home/ec2-user/.env &&
+            echo 'POSTGRES_DB=${POSTGRES_DB}' >> /home/ec2-user/.env &&
+            echo 'BRANCH_NAME=${BRANCH_NAME}' >> /home/ec2-user/.env &&
+            echo 'DOCKERHUB_USERNAME=${{ secrets.DOCKER_USERNAME }}' >> /home/ec2-user/.env &&
+            cd /home/ec2-user &&
+            docker-compose --env-file .env down || true &&
+            docker-compose --env-file .env up -d
+          "

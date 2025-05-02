@@ -5,6 +5,7 @@ WORKDIR /app
 COPY file-sharing/pom.xml file-sharing/mvnw ./
 COPY file-sharing/.mvn .mvn
 
+RUN chmod +x mvnw
 RUN ./mvnw dependency:go-offline
 
 COPY file-sharing/src ./src
