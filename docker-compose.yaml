@@ -4,6 +4,7 @@ services:
   frontend:
     build: ./frontend
     container_name: "file-sharing-angular-frontend"
+    image: ${DOCKERHUB_USERNAME}/file-sharing-frontend:latest
     depends_on:
       - backend
 #    ports:
@@ -14,6 +15,7 @@ services:
   backend:
     build: ./backend
     container_name: "file-sharing-spring-backend"
+    image: ${DOCKERHUB_USERNAME}/file-sharing-backend:latest
     depends_on:
       db:
         condition: service_healthy
@@ -27,6 +29,7 @@ services:
   proxy:
     build: ./nginx
     container_name: "file-sharing-nginx-proxy"
+    image: ${DOCKERHUB_USERNAME}/file-sharing-proxy:latest
     restart: always
     ports:
       - "80:80"
